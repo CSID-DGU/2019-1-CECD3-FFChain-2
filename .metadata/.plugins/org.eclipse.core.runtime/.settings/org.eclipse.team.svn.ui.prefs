@@ -1,0 +1,31 @@
+eclipse.preferences.version=1
+firstStartup=false
+history.comment=66y07Jet7JeF67KI7Zi4IOyXkOufrCDsiJjsoJU\=;YWpheCBmb3JtIHN1Ym1pdCDrs4Dqsr0\=;7IKs7JeF7J2066ClIOy0iOq4sO2ZlOuptCDqsoDsg4kg7IKt7KCc;7Jik66WYIOyImOyglSDrk7E\=;6rOg6rCdIOyXheuNsOydtO2KuCDro7Ag7KCB7Jqp;7Jik66WY7IiY7KCV;7Jik66WY7IiY7KCV65Ox;bG9naW4gaWQgY29va2ll66GcIOuzgOqyvQ\=\=;7IKs7JeF7Iug7LKt7J6QIOuqqeuhnQ\=\=;c2V0QXV0aG9yR2Ig67OA6rK9
+history.repositoryURL=aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNw\=\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVuaw\=\=;aHR0cHM6Ly8xMjcuMC4wLjEvc3ZuL2tpdGFfcHJvamVjdC8\=
+history.repositoryUser=YmpsZWU\=;aG1raW0\=
+history.selectProjectNamePage=aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVuay9raXRhLmFwcA\=\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVua2tpdGEuYXBw;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVua2l0YS5hcHA\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVraXRhLmFwcA\=\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cmtpdGEuYXBw;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90a2l0YS5hcHA\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy9raXRhLmFwcA\=\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVuaw\=\=;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnVu;aHR0cHM6Ly8yMDMuMjMzLjIyOS4yOC9zdm4va2l0YV9jcm1fMjAxNy90cnU\=
+org.eclipse.team.svn.ui.panel.ListSelectionPanel.height=195
+org.eclipse.team.svn.ui.panel.ListSelectionPanel.width=470
+org.eclipse.team.svn.ui.panel.callback.AskTrustSSLServerPanel.height=405
+org.eclipse.team.svn.ui.panel.callback.AskTrustSSLServerPanel.width=530
+org.eclipse.team.svn.ui.panel.callback.PromptCredentialsPanel.height=220
+org.eclipse.team.svn.ui.panel.callback.PromptCredentialsPanel.width=470
+org.eclipse.team.svn.ui.panel.common.CommentPanel.height=146
+org.eclipse.team.svn.ui.panel.common.CommentPanel.width=510
+org.eclipse.team.svn.ui.panel.common.RepositoryTreePanel.height=203
+org.eclipse.team.svn.ui.panel.common.RepositoryTreePanel.width=470
+org.eclipse.team.svn.ui.panel.local.AddRepositoryPanel.height=109
+org.eclipse.team.svn.ui.panel.local.AddRepositoryPanel.width=470
+org.eclipse.team.svn.ui.panel.local.CommitPanel.height=406
+org.eclipse.team.svn.ui.panel.local.CommitPanel.width=600
+org.eclipse.team.svn.ui.panel.local.OverrideResourcesPanel.height=224
+org.eclipse.team.svn.ui.panel.local.OverrideResourcesPanel.width=600
+org.eclipse.team.svn.ui.panel.local.RevertPanel.height=253
+org.eclipse.team.svn.ui.panel.local.RevertPanel.width=600
+org.eclipse.team.svn.ui.panel.remote.DiscardLocationFailurePanel.height=190
+org.eclipse.team.svn.ui.panel.remote.DiscardLocationFailurePanel.width=470
+org.eclipse.team.svn.ui.panel.reporting.ErrorCancelPanel.height=458
+org.eclipse.team.svn.ui.panel.reporting.ErrorCancelPanel.width=640
+preference.decoration.format.file={outgoing_flag} {name} {revision} {date} {author}
+preference.decoration.format.folder={outgoing_flag} {name} {revision} {date} {author}
+preference.repository.repositoryBrowser=false

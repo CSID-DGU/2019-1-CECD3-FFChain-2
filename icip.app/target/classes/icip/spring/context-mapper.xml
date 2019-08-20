@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+	<!-- SqlSession setup for MyBatis Database Layer -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:/icip/mapper/sql-mapper-config.xml" />
+		<property name="mapperLocations" >
+			<list>
+				<!-- 공통영역
+				<value>classpath:/icip/mapper/common/*.xml</value>
+				<value>classpath:/icip/mapper/common/*/*.xml</value>
+				<value>classpath:/icip/mapper/common/*/*/*.xml</value> -->
+				<!-- 개발영역 -->
+				<value>classpath:/icip/mapper/icip/*/*.xml</value>
+				<value>classpath:/icip/mapper/icip/*/*/*.xml</value>
+				<value>classpath:/icip/mapper/icip/*/*/*/*.xml</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+	<!--sql 세션 팩토리에 주입된것이 다시 sqlsessiontemplate로 들어오므로 우리는 이것만 쓰면됨  -->
+        <constructor-arg index="0" ref="sqlSession" />
+ 		<constructor-arg index="1" value="BATCH" />
+    </bean>
+
+	<!-- MapperConfigurer setup for MyBatis Database Layer with @Mapper("deptMapper") in DeptMapper Interface -->
+ 	<bean class="egovframework.rte.psl.dataaccess.mapper.MapperConfigurer">
+		<property name="basePackage" value="kr.ac.dgu.icip" />
+	</bean>
+    
+</beans>

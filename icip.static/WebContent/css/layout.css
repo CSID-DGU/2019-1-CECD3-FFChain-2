@@ -1,0 +1,62 @@
+﻿@charset "utf-8";
+
+/* Common */
+body {font-family:"맑은 고딕", "돋움", "굴림";}
+a:link {text-decoration:none;}
+a img {border:0;}
+ul, li{margin:0;padding:0;list-style:none}
+span, p{margin:0}
+caption{width:0;height:0;font-size:0;line-height:0;visibility:hidden;overflow:hidden}
+
+
+/* Wrap */
+.wrap .inner_wrap{width:960px;margin:0 auto}
+
+/* Logo */
+.wrap .logo_wrap{position:relative;height:58px;font-size:0}
+.wrap .logo_wrap .logo_left{position:absolute;top:0;left:100px;}
+.wrap .logo_wrap .logo_right{position:absolute;top:0;right:100px;}
+.wrap .logo_wrap .logo_right a{display:block}
+
+/* Navi */
+.wrap nav{}
+.wrap nav ul{overflow:hidden}
+.wrap nav ul li{float:left;display:block;font-size:0}
+.wrap nav ul a{display:block;}
+
+/* Footer */
+.wrap footer {width:100%; padding:14px 0 0 10px; margin-top:50px; text-align:left; border-top:1px solid #e0e0e0;}
+
+
+/* Content Common*/
+.content{width:730px;margin:0 auto;min-height:600px}
+.content h2.title {font-size:40px;font-weight:500;text-align:center;margin:60px 0 50px;color:#505050}
+.content .step ul{overflow:hidden}
+.content .step ul li{float:left;display:block}
+.content .box {border:1px solid #cfcfcf;text-align:center;margin-bottom:5px;}
+.content .box .message{text-align:center;margin-bottom:40px;}
+.content .box .message p{display:inline-block;/*text-align:left;*/font-size:14px;color:#5b5b5b; line-height:24px;}
+.content .info span.input_title{display:block;float:left;width:60px;font-weight:bold;padding:9px 10px;font-size:14px;line-height:12px;vertical-align:middle;text-align:right}
+.content .info .input, .content .info .input {display:block;float:left;width:270px; height:26px;font-size:14px;border:1px solid #dadcdb; background-color:#f5f5f5; margin-right:10px; padding-left:6px;vertical-align:middle}
+.content .info .confirm, .content .info .confirm{display:block;float:left;width:67px;height:30px;background:url('/images/btn_ok.gif') no-repeat;border:none}
+.content input[type="radio"]{width:13px;height:13px}
+.content input[type="radio"] + label{font-size:12px}
+.content input[type="radio"], .content input[type="radio"] + label{display:block;float:left;line-height:12px;margin:9px 5px 9px 0}
+
+.content .btns{overflow:hidden}
+.content .btn{height:55px; font-size:1.2em; font-weight:bold; text-align:center;background-color:#98c166;}
+.content .btn.half{width:363px;float:left}
+.content .btn.half:first-child{margin-right:4px}
+.content .btn.selected{background-color:#98c166}
+.content .btn a{display:block;padding:20px 0;font-size:16px;color:#fff;line-height:1}
+
+
+
+
+/* 추가된 css 2016-10-17 */
+.content .btns2{overflow:hidden}
+.content .btn2{height:55px; font-size:1.2em; font-weight:bold; text-align:center;background-color:#98c166;}
+.content .btn2.half{width:730px;float:left}
+.content .btn2.half:first-child{margin-right:4px}
+.content .btn2.selected{background-color:#98c166}
+.content .btn2 a{display:block;padding:20px 0;font-size:16px;color:#fff;line-height:1}

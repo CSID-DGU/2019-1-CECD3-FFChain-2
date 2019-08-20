@@ -1,0 +1,284 @@
+<%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+    <SCRIPT LANGUAGE="JavaScript">
+
+    $(document).ready(function(){	
+    	initServiceCategoryCode("svcUpper", "svcCate","<c:out value="${reqDataVO.pId}"/>","<c:out value="${reqDataVO.gId}"/>");
+
+        $("#btn_del").click(function(){
+            var objChk = $("input[type='checkbox'][name='targetSeq']:checked");
+            if (! objChk.length ){
+                alert('"마케팅 대상 그룹명"을 체크해주십시오.');
+                return;
+            }
+
+            if (confirm("삭제하시겠습니까? 삭제 후 복구할수 없습니다")){
+                //loading(true);
+                doSearch();
+             	//commonUtil.ajaxSubmitCall("listForm", "<c:url value='/kita/bsnsmarkt/markt/BM001061.do'/>", fn_deleteMarketingKeyCallBack);
+            }
+        });
+
+        $("#btn_mod").click(function(){
+            var objChk = $("input[type='checkbox'][name='targetSeq']:checked");
+            if (! objChk.length ){
+                alert('"마케팅 대상 그룹명"을 체크해주십시오.');
+                return;
+            }
+
+			//loading(true);
+			$("#addGrp").attr("style","block");
+			//commonUtil.ajaxSubmitCall("listForm", "<c:url value='/kita/bsnsmarkt/markt/BM001061.do'/>", fn_deleteMarketingKeyCallBack);
+        });
+        
+        $("#btn_new").click(function(){
+			var popUrl = "<c:url value='/kita/bsnsmarkt/markt/marktTrgetManageNewPopup.do'/>";
+			var smd = window.open(popUrl, "mtt", "width=950,height=600");
+        });
+        
+        $("#btn_mod_exec").click(function(){
+			//loading(true);
+			 alert("수정완료");
+			doSearch();
+			//commonUtil.ajaxSubmitCall("listForm", "<c:url value='/kita/bsnsmarkt/markt/BM001061.do'/>", fn_deleteMarketingKeyCallBack);
+        });
+        
+        
+    });
+    
+        function trim(str) {
+            //정규 표현식을 사용하여 화이트스페이스를 빈문자로 전환
+            str = str.replace(/^\s*/, '').replace(/\s*$/, '');
+            return str; //변환한 스트링을 리턴.
+        }
+
+
+
+        //do search
+        function doSearch() {
+            var form = document.listForm;
+            /*
+             if(!form.p_id.value || form.p_id.value==''){
+             alert("서비스 그룹을 선택해 주세요.");
+             return;
+             }
+             */
+            /*
+             if(form.sdate.value > form.edate.value) {
+             alert("날짜 지정이 잘못 되었습니다.");
+             return;
+             }
+             */
+            //alert(form.p_id.value + " : " + form.g_id.value);
+            
+             //form.page.value = "1";
+             form.def.value = '1';
+            form.submit();
+        }
+
+        //GO 마케팅 풀
+        function goMktPool(tradeId, mailCnt, smsCnt, faxCnt, svyCnt) {
+            //location.href = "./KMtTargCustIn.jsp?tradeId=" + tradeId + "&mailCnt=" + mailCnt + "&smsCnt=" + smsCnt + "&faxCnt=" + faxCnt+"&svyCnt="+svyCnt+"&page=" + <c:out value="${reqDataVO.pageIndex}"/>;
+            //location.href = "./MT001030.jsp?tradeId=" + tradeId + "&mailCnt=" + mailCnt + "&smsCnt=" + smsCnt + "&faxCnt=" + faxCnt+"&svyCnt="+svyCnt+"&page=" + <c:out value="${reqDataVO.pageIndex}"/>;
+            
+            
+            var form = document.listForm;
+            form.tradeId.value=tradeId;
+            form.mailCnt.value=mailCnt;
+            form.smsCnt.value=smsCnt;
+            form.faxCnt.value=faxCnt;
+            form.svyCnt.value=svyCnt;
+            form.action= "<c:url value='/kita/bsnsmarkt/marktsrvcmanage/marktSrvcmanageDetaillist.do'/>"; //"./MT001030.jsp";
+            form.submit();
+            
+        }
+
+		
+		function onLoad(){
+			document.listForm.serviceNm.focus();
+		}
+		
+	
+		
+		function doListCntChange() {
+			//$.cookie('listViewCnt', $('#listViewCnt').val(), { expires: 365, path: '/' });
+			document.getElementById("listForm").pageIndex.value = 1;
+			//document.getElementById("listForm").pageUnit.value = $('#listViewCnt').val();
+			
+			doSearch();
+		}
+		
+		function goDetail(upYn, poolSeq, gubun, seqNo) {
+		    var popUrl = "<c:url value='/kita/bsnsmarkt/markt/marktTrgetManageListPopup.do'/>?sendMain=Y&upYn=" + upYn + "&poolSeq=" + poolSeq + "&gubun=" + gubun + "&seqNo=" + seqNo + "&serviceNm=<c:out value="${reqDataVO.serviceNm}"/>&bizSeq=&mobileYn=N";
+		    var smd = window.open(popUrl, "mtt", "width=950,height=600");
+		}
+		
+    </script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	//$("#tabs").tabs();
+});
+</script>
+
+
+<script type="text/javaScript" language="javascript" defer="defer">
+<!--
+/* pagination 페이지 링크 function */
+function fn_egov_link_page(pageNo){
+	document.getElementById("listForm").pageIndex.value = pageNo;
+	document.getElementById("listForm").action = "<c:url value='/kita/bsnsmarkt/markt/marktTrgetManageList.do'/>";
+   	document.getElementById("listForm").submit();
+}
+ // -->
+</script>
+<form:form commandName="reqDataVO" name="listForm" id="listForm" method="post">
+    <input type="hidden" name="codeId" />
+<input type="hidden" name="selectFlag">
+<input type="hidden" name="def">
+
+<input type="hidden" name="tradeId">
+<input type="hidden" name="mailCnt">
+<input type="hidden" name="smsCnt">
+<input type="hidden" name="faxCnt">
+<input type="hidden" name="svyCnt">
+
+<DIV class=contents_title><SPAN>마케팅 대상관리</SPAN></DIV>
+	<div class="msgLeft">
+		<div class="tit">
+			<span>대상그룹 리스트</span>
+		</div>
+	</div>
+<div class="tBox">
+
+<table class="tb_search">
+                <tr>
+                    <th width="15%" class="head_left">마케팅 관리목록</th>
+                    <td class="hdata_left"><input name="serviceNm" type="text" class="input_1" size="20" value="<c:out value="${reqDataVO.serviceNm}"/>" onkeydown="javascript:if(event.keyCode == 13) doSearch();"> </td>
+					<td><DIV class="btFbox w50" onClick="javascript:doSearch();" style="margin-top:-5px;"><DIV class=btF>조회</DIV></DIV></DIV></td>                    
+                </tr>
+            </table>
+</div>
+<div class="sp20"></div>
+</DIV>
+<div class="sp10"></div>
+
+<DIV class=msgDual>
+<DIV class="msgLeft ">[<SPAN id=customerSearchOptionKindText></SPAN> 총 <fmt:formatNumber value="${paginationInfo.totalRecordCount}" type="number"/> 건]</DIV>
+<DIV class="msgRight "><SPAN class=btLeft>페이지당 조회건수</SPAN>
+                <select id="pageUnit" name="pageUnit" onChange="doListCntChange();">
+      			<option name="10"   <c:if test="${reqDataVO.pageUnit=='10'}">selected</c:if> >10</option>
+      			<option name="20"   <c:if test="${reqDataVO.pageUnit=='20'}">selected</c:if> >20</option>
+      			<option name="50"   <c:if test="${reqDataVO.pageUnit=='50'}">selected</c:if> >50</option>
+      			<option name="100"  <c:if test="${reqDataVO.pageUnit=='100'}">selected</c:if> >100</option>
+      			<option name="200"  <c:if test="${reqDataVO.pageUnit=='200'}">selected</c:if> >200</option>
+      		 </select>
+</DIV></DIV>
+
+<div class="tBox">
+<table class="tb_list">
+<tr>
+    <th width="5%" class="head_center1">선택</th>
+    <th width="5%" class="head_center1">No.</th>
+    <th width="10%" class="head_center1">구분</th>
+    <th width="70%" class="head_center1">마케팅 관리목록</th>
+    <th width="10%" class="head_center1">총대상수</th>
+</tr>
+
+<c:if test="${fn:length(resultList) < 1 }">
+<tr>
+    <td colspan="5" class="data_center"><spring:message code='info.searchlist.none'/></td>
+</tr>
+</c:if>
+<c:forEach var="result" items="${resultList}" varStatus="status">
+<tr>
+    <td class="alC"><input type="checkbox" name="targetSeq" value="<c:out value="${result.targetSeq}"/>" />
+    </td>
+    <td class="alC"><c:out value="${result.rnum}"/>
+    </td>
+    <td class="alC">
+		<c:if test="${result.status=='P'}">
+			대상추출
+		</c:if>	
+		<c:if test="${result.status!='P'}">
+			대상추출
+		</c:if>	
+    </td>
+    <td class="data_left" align="left">
+        <a href="javascript:goDetail('<c:out value="${result.targetSeq}"/>','<c:out value="${result.totCnt}"/>','<c:out value="${result.targetGroupDesc}"/>','<c:out value="${result.faxCnt}"/>','<c:out value="${result.svyCnt}"/>');">
+        <b>
+						<ui:mktUtil value="" 
+						mailCnt="${result.mailCnt}"
+						smsCnt="${result.smsCnt}"
+						faxCnt="${result.faxCnt}"
+						svyCnt="${result.svyCnt}"
+						 ftype="SubTitleMkt" /> 
+		<c:out value="${result.serviceNm}"/></b>
+        </a>
+    </td>
+    <td class="data_center" align="center"><c:out value="${result.smsCnt*1024}"/>
+    </td>
+</tr>
+</c:forEach>    
+</table>
+	<!-- /List -->
+</div>
+
+	<div id="paging" class="paging">
+		<ui:pagination paginationInfo="${paginationInfo}" type="image" jsFunction="fn_egov_link_page"/>
+		<form:hidden path="pageIndex" />
+	</div>
+
+</form:form>
+
+<div class="sp10"></div>
+
+<div class="btnBox fr">
+	<div class="btFbox w40"><div class="btF" id="btn_new">생성</div></div> <div class="btFbox w40"><div class="btF" id="btn_mod">수정</div></div> <div class="btFbox w40"><div class="btF" id="btn_del">삭제</div></div>
+</div>
+
+<div style="display:none" id="addGrp">
+<div class="sp10"></div>
+
+<div class = "btLeft">
+<DIV class=contents_wrap><DIV class=tit><SPAN>그룹 편집 </SPAN></DIV></DIV>
+</div>
+<div class="tBox">
+<table class="tb_make">
+	<tr>
+		<th width="25%" class="head_left">마케팅 대상 그룹명</th>
+		<td class="hdata_left"><input name="targetGroupName" type="text" class="input_1" size="30" value="" maxlength="50" disabled="true"></td>
+	</tr>
+	<tr>
+		<th width="25%" class="head_left">그룹설명</th>
+		<td class="hdata_left"><input name="targetGroupDesc" type="text" class="input_1" size="54" value="" maxlength="100"></td>
+	</tr>
+	<tr>
+		<th width="25%" class="head_left"><font color="red">*</font>공개여부</th>
+		<td class="hdata_left"><input type="radio" name="shareTp" id="shareTp" value="1" class="input_basic_w" checked="checked"> 전체공개 
+									<input type="radio" name="shareTp" id="shareTp" value="2" class="input_basic_w"> 부서공개
+									<input type="radio" name="shareTp" id="shareTp" value="3" class="input_basic_w"> 미공개</td>
+	</tr>
+</table>
+</div>
+
+<div class="sp10"></div>
+
+<div class="btnBox fr">
+	<div class="btFbox w80" onclick="modifyTrgetGroupInfo()"><div class="btF" id="btn_mod_exec">수정완료</div></div>
+</div>
+
+<div class="sp10"></div>
+</div>
+</div>
+	</div><!-- contents -->	
+</div><!--wrap -->
+
+</body>
+</html>

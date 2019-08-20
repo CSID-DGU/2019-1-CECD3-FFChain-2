@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item value="156" key="org.eclipse.jdt.debug.ui.jre_preference_page_context.columnWidth0"/>
+	<item value="D:\icipFrameWork\tools\jdk1.7.0_80_32Bit\lib" key="JavaClasspathTab.LAST_PATH_SETTING"/>
+	<item value="253" key="org.eclipse.jdt.debug.ui.jre_preference_page_context.columnWidth1"/>
+	<item value="1" key="org.eclipse.jdt.debug.ui.jre_preference_page_context.sortColumn"/>
+	<item value="93" key="org.eclipse.jdt.debug.ui.jre_preference_page_context.columnWidth2"/>
+	<section name="org.eclipse.jdt.internal.debug.ui.ExpressionInformationControlCreator$ExpressionInformationControl">
+		<item value="200" key="SashWeightDetails"/>
+		<item value="200" key="SashWeightTree"/>
+		<item value="447" key="HEIGHT"/>
+		<item value="684" key="WIDTH"/>
+	</section>
+	<section name="conditionHistory">
+	</section>
+</section>

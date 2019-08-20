@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:p="http://www.springframework.org/schema/p"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+	<context:property-placeholder location="classpath:icip/config/*.properties" />
+
+    <context:component-scan base-package="kr.ac.dgu">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+    </context:component-scan>
+
+     <bean class="kr.ac.dgu.icip.cmm.ExceptionResolver">
+        <property name="defaultErrorView" value="cmmn/error/egovError"/>
+        <property name="ajaxHeaderName" value="AJAX"/>
+        <property name="ajaxHeaderInputName" value="_ajax_heder"/>
+        <property name="ajaxErrorView" value="cmmn/AjaxError"/>
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.springframework.dao.DataAccessException">cmmn/error/dataAccessFailure</prop>
+                <prop key="org.springframework.transaction.TransactionException">cmmn/error/transactionFailure</prop>
+                <prop key="egovframework.rte.fdl.cmmn.exception.EgovBizException">cmmn/error/egovError</prop>
+                <prop key="org.springframework.security.AccessDeniedException">cmmn/error/egovError</prop>
+            </props>
+        </property>
+    </bean>
+
+ 	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" p:order="2"
+	    p:viewClass="org.springframework.web.servlet.view.JstlView"
+	    p:prefix="/WEB-INF/jsp/"
+	    p:cache="false"
+	    p:suffix=".jsp"/>
+
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="webBindingInitializer">
+            <bean class="kr.ac.dgu.base.cmm.web.BindingInitializer"/>
+        </property>
+    </bean>
+
+    <!-- Spring Mapping 정보 조회용 id 추가 -->
+    <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+
+    <!-- Session 정보를 Controller Parameter에 설정 -->
+    <mvc:annotation-driven>
+        <mvc:argument-resolvers>
+            <bean id="sessionAttributeAnnotationResolver" class="kr.ac.dgu.icip.cmm.resolver.SessionAttributeAnnotationResolver" />
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+    
+
+    <!-- IP 정보 기록 및 로그인 체크가 필요한 URL과 로그인 여부를 체크해줄 인터셉터를 등록한다. -->
+    <mvc:interceptors>
+    	<bean class="kr.ac.dgu.base.cmm.interceptor.CmmInterceptor" />
+        <bean class="kr.ac.dgu.base.cmm.interceptor.MultipartRequestInterceptor">
+            <!-- 일반 파일업로드 허용확장자 지정 -->
+            <property name="allowExt">
+                <map>
+                    <!-- 허용확장자, 허용용량byte로 지정:0일 경우 maxSize가 적용됨 -->
+                    <entry key="bmp"  value="0" />
+                    <entry key="jpg"  value="0" />
+                    <entry key="jpeg" value="0" />
+                    <entry key="gif"  value="0" />
+                    <entry key="doc"  value="0" />
+                    <entry key="docx" value="0" />
+                    <entry key="ppt"  value="0" />
+                    <entry key="pptx" value="0" />
+                    <entry key="xls"  value="0" />
+                    <entry key="xlsx" value="0" />
+                    <entry key="hwp"  value="0" />
+                    <entry key="txt"  value="0" />
+                    <entry key="pdf"  value="0" />
+                    <entry key="png"  value="0" />
+                    <entry key="tif"  value="0" />
+                </map>
+            </property>
+            <!-- HTML Editor 파일업로드 허용확장자 지정 -->
+            <property name="htmlEditorAllowExt">
+                <map>
+                    <!-- 허용확장자, 허용용량byte로 지정:0일 경우 maxSize가 적용됨 -->
+                    <entry key="bmp"  value="0" />
+                    <entry key="jpg"  value="0" />
+                    <entry key="jpeg" value="0" />
+                    <entry key="gif"  value="0" />
+                    <entry key="tif"  value="0" />
+                    <entry key="png"  value="0" />
+                </map>
+            </property>
+            <!-- 허용용량byte로 지정 10M -->
+            <property name="maxSize" value="10485760" />
+        </bean>
+        <mvc:interceptor>
+        
+            <mvc:mapping path="/icip/**/*.do" />
+            <bean class="kr.ac.dgu.icip.cmm.interceptor.AuthenticInterceptor" >
+                <property name="ajaxHeaderName" value="AJAX"/>
+                <property name="ajaxHeaderInputName" value="_ajax_heder"/>
+                <property name="useIncludeUrl" value="true" />
+	            <property name="includeUrl">
+	                <list>
+						<value>/icip/main/index.do</value>
+	                </list>
+	            </property>
+	            <property name="exceptUrl">
+	                <list>
+	                    <value>/index.do</value>
+	                </list>
+	            </property>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- For Pagination Tag -->
+    <bean id="pagingRenderer" class="kr.ac.dgu.icip.cmm.paging.PaginationRenderer"/>
+    <bean id="imageRenderer" class="kr.ac.dgu.icip.cmm.paging.ImgPaginationRenderer"/>
+
+    <bean class="egovframework.rte.ptl.mvc.tags.ui.pagination.DefaultPaginationManager" id="paginationManager">
+        <property name="rendererType">
+            <map>
+                <entry key="paging" value-ref="pagingRenderer"/>
+                <entry key="image" value-ref="imageRenderer"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="pagingUtilBean" class="kr.ac.dgu.base.cmm.util.PagingUtil" factory-method="init">
+        <constructor-arg ref="propertiesService" />
+        <constructor-arg ref="paginationManager" />
+    </bean>
+	<!-- /For Pagination Tag -->
+
+    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="0" />
+
+    <!-- json view -->
+    <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" p:contentType="text/html; charset=utf-8" />
+
+    <!-- excel view -->
+    <bean id="excelDownload" class="kr.ac.dgu.icip.cmm.excel.ExcelDownloadView"></bean>
+
+    <!-- tiles3 설정  -->
+    <bean id="tilesViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView" />
+        <property name="order" value="1"/>
+    </bean>
+
+    <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+        <property name="definitions">
+            <list>
+                 <value>/WEB-INF/tiles/tiles.xml</value>
+            </list>
+        </property>
+    </bean>
+ 	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" p:order="2"
+	    p:viewClass="org.springframework.web.servlet.view.JstlView"
+	    p:prefix="/WEB-INF/jsp/"
+	    p:cache="false"
+	    p:suffix=".jsp"/>
+
+    <mvc:view-controller path="/cmmn/validator.do" view-name="cmmn/validator"/>
+    
+</beans>

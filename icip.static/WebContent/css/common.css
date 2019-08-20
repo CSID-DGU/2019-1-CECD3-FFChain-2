@@ -1,0 +1,15 @@
+/* loading */
+.loadingPlate{position:fixed; top:0; left:0; width:100%; height:100%; margin-left:0; z-index:530010}
+.loadingPlate .bg{position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; background-color:rgb(51, 51, 51)}
+.loadingBox{position:absolute; top:50%; left:50%; width:318px; margin:-71px 0 0 -225px; padding:40px 65px; border:1px solid #cacaca; background:#fff}
+.loadingBox img{float:left}
+.loadingBox p{float:right; font-family:Malgun Gothic; font-size:16px; text-align:center}
+.loadingBox p strong{display:block; margin-bottom:5px; font-size:24px; line-height:1.2}
+
+/*datepicker*/
+.ui-datepicker-week-end:first-child {color:#ff6666;}
+.ui-datepicker-week-end:last-child {color:#6666ff;}
+.date-saturday a {color:#6666ff !important;}
+.date-sunday a  {color:#ff6666 !important;}
+.date-holiday0 a {color:#FF6600 !important;}
+.date.hasDatepicker{width:65px;}

@@ -1,0 +1,52 @@
+/* tables */
+
+table.tablesorter {
+	font-family:dotum;
+	background-color: #CDCDCD;
+	margin:10px 0pt 15px;
+	font-size: 9pt;
+	width: 100%;
+	text-align: left;
+	border:1px solid #d2d2d2;
+	border-collapse:collapse;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	background-color: #EFF9FA;
+background-image: url(/images/bg01.gif);
+	font-size: 9pt;
+}
+table.tablesorter thead tr .header {
+	background-image: url(/imgNew/tbOrder_bg01.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter tbody td {
+	color: #666;
+	background-color: #FFF;
+	border-right:1px soild #d2d2d2;
+	border-bottom:1px solid #d2d2d2;
+}
+table.tablesorter tbody tr.odd td {
+	background-color:#F0F0F6;
+	border-right:1px soild #d2d2d2;
+	border-bottom:1px solid #d2d2d2;
+}
+
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-image:url('/imgNew/tb_bgw.gif');
+}
+
+
+/* List - 목록테이블 */ 
+/* 테이블*/ 	table.tablesorter					{width:100%;border-top:1px solid #cccccc;border-left:1px solid #cccccc;border-collapse:collapse;border-right:1px solid #cccccc;float:left;}
+/* TH*/				table.tablesorter thead tr th, table.tablesorter tfoot tr th				{border-right:1px solid #cccccc;border-bottom:1px solid #cccccc;background-image:url('/imgNew/tb_bgw.gif');background-position:bottom;background-repeat:repeat-x;padding:3px;text-align:center;white-space:nowrap;}
+/* TD*/				table.tablesorter tbody td				{border-right:1px solid #cccccc;border-bottom:1px solid #cccccc;padding:3px;}
+/* Hover */		table.tablesorter tr:hover td {background: #f7f7f7;}
+
+table.tablesorter thead tr .headerSortUp {
+	background-image: url(/imgNew/tbOrder_bgASD.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+	background-image: url(/imgNew/tbOrder_bgDSD.gif);
+}

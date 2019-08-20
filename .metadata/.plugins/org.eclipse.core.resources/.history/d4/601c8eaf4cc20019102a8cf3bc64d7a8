@@ -1,0 +1,6 @@
+@CHARSET "UTF-8";
+
+div.boardOption > ul > li {
+    float: left;
+    margin-right: 6px;
+}

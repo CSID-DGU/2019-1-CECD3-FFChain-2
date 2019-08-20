@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project name="icip build" basedir="." default="create.dev.war">
+	<property file="ant-build.properties" />
+
+	<property environment="env" />
+	<property name="deploy.dir" value="D:/deploy" />
+	<property name="deploy.war" value="${deploy.dir}/${webapp.name}.war" />
+	<!-- 개발기 프로퍼티 -->
+	<property name="deploy.dev.dir" value="${deploy.dir}/${webapp.name}.dev" />
+	<property name="deploy.dev.war" value="${webapp.name}.dev.war" />
+	<!-- 운영기 프로퍼티 -->
+	<property name="deploy.op.dir" value="${deploy.dir}/${webapp.name}.op" />
+	<property name="deploy.op.war" value="${webapp.name}.op.war" />
+
+	<!-- timestamp -->
+	<tstamp>
+		<format property="TODAY_GB" pattern="yyyy-MM-dd_HHmm" locale="ko,KR" />
+	</tstamp>
+
+	<!-- Static 빌드 -->
+	<target name="create.static">
+		<zip destfile="${deploy.dir}/${static.name}.zip" basedir="${static.root}" />
+	</target>
+
+	<!-- 개발기 빌드 -->
+	<target name="create.dev.war">
+		<delete dir="${deploy.dev.dir}" />
+
+		<unwar src="${deploy.war}" dest="${deploy.dev.dir}" overwrite="true" />
+
+		<!-- Static 복사 -->
+		<copy todir="${deploy.dev.dir}" overwrite="true">
+			<fileset dir="${static.root}" />
+		</copy>
+
+		<!-- 프로퍼티 설정 -->
+		<copy todir="${deploy.dev.dir}/WEB-INF/classes" overwrite="true">
+			<fileset dir="${deploy.dev.dir}/WEB-INF/classes/dev" />
+		</copy>
+
+		<!-- 개발기 전용 파일 반영 -->
+		<move file="${deploy.dev.dir}/WEB-INF/jsp/icip/main/index.jsp.dev" tofile="${deploy.dev.dir}/WEB-INF/jsp/icip/main/index.jsp" overwrite="true" />
+
+		<war destfile="${deploy.dir}/${TODAY_GB}_${deploy.dev.war}" webxml="${deploy.dev.dir}/WEB-INF/web.xml">
+			<fileset dir="${deploy.dev.dir}">
+				<exclude name="**/ojdbc6-11.2.0.3.jar" />
+				<exclude name="**/web.xml.sso" />
+			</fileset>
+		</war>
+	</target>
+
+	<!-- 운영기 빌드 -->
+	<target name="create.op.war">
+		<delete dir="${deploy.op.dir}" />
+
+		<unwar src="${deploy.war}" dest="${deploy.op.dir}" overwrite="true" />
+
+		<!-- Static 복사 -->
+		<copy todir="${deploy.op.dir}" overwrite="true">
+			<fileset dir="${static.root}" />
+		</copy>
+
+		<!-- 프로퍼티 설정 -->
+		<copy todir="${deploy.op.dir}/WEB-INF/classes" overwrite="true">
+			<fileset dir="${deploy.op.dir}/WEB-INF/classes/op" />
+		</copy>
+
+		<!-- 개발기 전용 팡일 반영 -->
+		<move file="${deploy.op.dir}/WEB-INF/jsp/icip/main/index.jsp.dev" tofile="${deploy.op.dir}/WEB-INF/jsp/icip/main/index.jsp" overwrite="true" />
+
+		<war destfile="${deploy.dir}/${TODAY_GB}_${deploy.op.war}" webxml="${deploy.op.dir}/WEB-INF/web.xml">
+			<fileset dir="${deploy.op.dir}">
+				<exclude name="**/ojdbc6-11.2.0.3.jar" />
+				<exclude name="**/web.xml.sso" />
+				<!--
+				<exclude name="**/db_test.jsp" />
+				-->
+			</fileset>
+		</war>
+	</target>
+</project>

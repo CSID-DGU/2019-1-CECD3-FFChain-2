@@ -1,0 +1,2635 @@
+
+package kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.impl; 
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import kr.or.dkcns.base.cmm.session.SessionManageAdminUtil;
+import kr.or.dkcns.base.cmm.util.DateUtil;
+import kr.or.dkcns.base.cmm.util.FileMngUtil;
+import kr.or.dkcns.base.cmm.util.StringUtil;
+import kr.or.dkcns.base.cmm.vo.DkMap;
+import kr.or.dkcns.base.cmm.vo.FileVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.dao.BsnsreqstinqireDao;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.dao.PblancmntrngDao;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BizAppItemVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BizAppTemplateVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsReqDataVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsreqstinqireDetailVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsreqstinqireVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.CorporateMstVO;
+import kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.FromDualVO;
+import kr.or.dkcns.kita.cmm.util.DRM;
+import kr.or.dkcns.kita.cmm.util.JibuCode;
+import kr.or.dkcns.kita.cmm.util.UtilManager;
+import kr.or.dkcns.kita.cmm.vo.LoginInfoVO;
+import kr.or.dkcns.kita.system.service.CommonMnmtService;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.jasypt.commons.CommonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+import egovframework.rte.fdl.property.EgovPropertyService;
+import egovframework.rte.psl.dataaccess.util.EgovMap;
+
+/**
+ * <pre>
+ * kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.impl 
+ * @Class Name : BsnsreqstinqireServiceImpl.java
+ * @Description :  class
+ * @Modification Information
+ * </pre>
+ * @author : Administrator
+ * @date : 2017. 8. 21. 오후 2:08:35
+ * @version : 1.0
+ *  
+ * @Copyright ⓒ 2016 Daekyo CNS, All Rights Reserved.
+ * 
+ * @history : 
+ *	-----------------------------------------------------------------------
+ *	변경일				작성자						변경내용  
+ *	----------- ------------------- ---------------------------------------
+ *	2017. 8. 21.		Administrator				최초 작성 
+ *	-----------------------------------------------------------------------
+ *  
+ */
+@Service("bsnsreqstinqireService")
+public class BsnsreqstinqireServiceImpl extends EgovAbstractServiceImpl implements  BsnsreqstinqireService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BsnsreqstinqireServiceImpl.class);
+    
+    @Resource(name="bsnsreqstinqireDao")
+    private BsnsreqstinqireDao bsnsreqstinqireDao;
+    
+    @Resource(name="PblancmntrngDao")
+    private PblancmntrngDao pblancmntrngDao;
+    
+    /** propertyService */
+    @Resource(name = "propertiesService")
+    protected EgovPropertyService propertiesService;
+    
+    /**Drm Component Service */
+    @Resource(name = "drmMngUtil")
+    protected DRM drmMngUtil;
+    
+    @Resource(name = "fileMngUtil")
+    protected FileMngUtil fileMngUtil; 
+    
+    @Resource(name = "commonMnmtService")
+    private CommonMnmtService commonMnmtService;
+    
+    /**
+     * txManager
+     */
+    @Resource(name = "txManager")
+    private PlatformTransactionManager txManager;
+    
+    public List<EgovMap> selectBsnsreqstinqireList(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        
+        return bsnsreqstinqireDao.selectBsnsreqstinqireList(bsnsReqDataVO);
+    }
+
+    public int selectBsnsreqstinqireListCount(BsnsReqDataVO bsnsReqDataVO) throws Exception{
+        
+        return bsnsreqstinqireDao.selectBsnsreqstinqireListCount(bsnsReqDataVO);
+        
+    }
+
+    /**
+     * <pre>
+     * 1. 개요 : 온라인 사업등록 정보
+     * </pre>
+     * @Method Name : selectBizRegistInfo
+     * @author : Administrator
+     * @date : 2017. 9. 15.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#selectBizRegistInfo(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsReqDataVO)
+     * @param bsnsReqDataVO
+     * @return
+     * @throws Exception
+     */ 	
+    public EgovMap selectBizRegistInfo(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        
+        EgovMap resultMap = new EgovMap();
+
+        resultMap = bsnsreqstinqireDao.selectBizRegistInfo(bsnsReqDataVO);
+        
+        return resultMap;
+    }
+
+    /**
+     * <pre>
+     * 1. 개요 : 마케팅 실시 정보
+     * </pre>
+     * @Method Name : selectMarketingInfo
+     * @author : Administrator
+     * @date : 2017. 9. 15.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#selectMarketingInfo(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsReqDataVO)
+     * @param bsnsReqDataVO
+     * @return
+     * @throws Exception
+     */ 	
+    public EgovMap selectMarketingInfo(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+       
+        EgovMap resultMap = bsnsreqstinqireDao.selectMarketingInfo(bsnsReqDataVO);
+        if(StringUtil.empty(resultMap) || resultMap.size() <= 0){
+            resultMap = new EgovMap();
+            resultMap.put("totalCnt", "0");
+        }
+        resultMap.put("bizSeq", bsnsReqDataVO.getBizSeq());
+        
+        return resultMap;
+    }
+
+    /**
+     * <pre>
+     * 1. 개요 : 사업참가자 현황, 사업수행(참가자 선별), 사업완료 정보
+     * </pre>
+     * @Method Name : selectBusinessInfo
+     * @author : Administrator
+     * @date : 2017. 9. 15.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#selectBusinessInfo(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsReqDataVO)
+     * @param bsnsReqDataVO
+     * @return
+     * @throws Exception
+     */ 	
+    public EgovMap selectBusinessInfo(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        
+        EgovMap resultMap = new EgovMap();
+        resultMap = bsnsreqstinqireDao.selectBusinessInfo(bsnsReqDataVO);
+        
+        resultMap.put("bizSeq", bsnsReqDataVO.getBizSeq());
+        
+        if(!StringUtil.empty(resultMap) && resultMap.size() > 0){
+            int corpCnt =  Integer.valueOf(resultMap.get("corpCnt").toString());
+            int personCnt =  Integer.valueOf(resultMap.get("personCnt").toString());
+            int fg5 =  Integer.valueOf(resultMap.get("fg5Cnt").toString());//3단계
+            int fg6 =  Integer.valueOf(resultMap.get("fg6Cnt").toString());
+            int fg7 =  Integer.valueOf(resultMap.get("fg7Cnt").toString());
+            int fg8 =  Integer.valueOf(resultMap.get("fg8Cnt").toString());
+            int fg9 =  Integer.valueOf(resultMap.get("fg9Cnt").toString());
+            int fg10 =  Integer.valueOf(resultMap.get("fg10Cnt").toString());
+            int fg11 =  Integer.valueOf(resultMap.get("fg11Cnt").toString());
+            int fg12 =  Integer.valueOf(resultMap.get("fg12Cnt").toString());
+            int fg13 =  Integer.valueOf(resultMap.get("fg13Cnt").toString());
+            int fg14 =  Integer.valueOf(resultMap.get("fg14Cnt").toString());
+            int fg15 =  Integer.valueOf(resultMap.get("fg15Cnt").toString());
+            int fg16 =  Integer.valueOf(resultMap.get("fg16Cnt").toString());
+            int fg17 =  Integer.valueOf(resultMap.get("fg17Cnt").toString());
+            int fg18 =  Integer.valueOf(resultMap.get("fg18Cnt").toString());
+            int fg19 =  Integer.valueOf(resultMap.get("fg19Cnt").toString());
+            int fg20 =  Integer.valueOf(resultMap.get("fg20Cnt").toString());
+            int fg21 =  Integer.valueOf(resultMap.get("fg21Cnt").toString());
+            
+            if(personCnt > 0){
+                resultMap.put("rateFg5", getRate(personCnt, fg5));
+                resultMap.put("rateFg6", getRate(personCnt, fg6));
+                resultMap.put("rateFg7", getRate(personCnt, fg7));
+                resultMap.put("rateFg8", getRate(personCnt, fg8));
+                resultMap.put("rateFg9", getRate(personCnt, fg9));
+            }
+            else{
+                resultMap.put("rateFg5", "0");
+                resultMap.put("rateFg6", "0");
+                resultMap.put("rateFg7", "0");
+                resultMap.put("rateFg8", "0");
+                resultMap.put("rateFg9", "0");
+            }
+            
+            if(corpCnt > 0){
+                resultMap.put("rateFg10", getRate(corpCnt, fg10));
+                resultMap.put("rateFg11", getRate(corpCnt, fg11));
+                resultMap.put("rateFg12", getRate(corpCnt, fg12));
+                resultMap.put("rateFg13", getRate(corpCnt, fg13));
+                resultMap.put("rateFg14", getRate(corpCnt, fg14));
+                resultMap.put("rateFg15", getRate(corpCnt, fg15));
+                resultMap.put("rateFg16", getRate(corpCnt, fg16));
+                resultMap.put("rateFg17", getRate(corpCnt, fg17));
+                resultMap.put("rateFg18", getRate(corpCnt, fg18));
+                resultMap.put("rateFg19", getRate(corpCnt, fg19));
+                resultMap.put("rateFg20", getRate(corpCnt, fg20));
+                resultMap.put("rateFg21", getRate(corpCnt, fg21));
+            }
+            else{
+                resultMap.put("rateFg10", "0");
+                resultMap.put("rateFg11", "0");
+                resultMap.put("rateFg12", "0");
+                resultMap.put("rateFg13", "0");
+                resultMap.put("rateFg14", "0");
+                resultMap.put("rateFg15", "0");
+                resultMap.put("rateFg16", "0");
+                resultMap.put("rateFg17", "0");
+                resultMap.put("rateFg18", "0");
+                resultMap.put("rateFg19", "0");
+                resultMap.put("rateFg20", "0");
+                resultMap.put("rateFg21", "0");
+            }
+            
+            
+            int afg5 =  Integer.valueOf(resultMap.get("afg5Cnt").toString());//4~5단계
+            int afg6 =  Integer.valueOf(resultMap.get("afg6Cnt").toString());
+            int afg7 =  Integer.valueOf(resultMap.get("afg7Cnt").toString());
+            int afg8 =  Integer.valueOf(resultMap.get("afg8Cnt").toString());
+            int afg9 =  Integer.valueOf(resultMap.get("afg9Cnt").toString());
+            int afg10 =  Integer.valueOf(resultMap.get("afg10Cnt").toString());
+            int afg11 =  Integer.valueOf(resultMap.get("afg11Cnt").toString());
+            int afg12 =  Integer.valueOf(resultMap.get("afg12Cnt").toString());
+            int afg13 =  Integer.valueOf(resultMap.get("afg13Cnt").toString());
+            int afg14 =  Integer.valueOf(resultMap.get("afg14Cnt").toString());
+            int afg15 =  Integer.valueOf(resultMap.get("afg15Cnt").toString());
+            int afg16 =  Integer.valueOf(resultMap.get("afg16Cnt").toString());
+            int afg17 =  Integer.valueOf(resultMap.get("afg17Cnt").toString());
+            int afg18 =  Integer.valueOf(resultMap.get("afg18Cnt").toString());
+            int afg19 =  Integer.valueOf(resultMap.get("afg19Cnt").toString());
+            int afg20 =  Integer.valueOf(resultMap.get("afg20Cnt").toString());
+            int afg21 =  Integer.valueOf(resultMap.get("afg21Cnt").toString());  
+            
+            if(personCnt > 0){
+                resultMap.put("rateAfg5", getRate(personCnt, afg5));
+                resultMap.put("rateAfg6", getRate(personCnt, afg6));
+                resultMap.put("rateAfg7", getRate(personCnt, afg7));
+                resultMap.put("rateAfg8", getRate(personCnt, afg8));
+                resultMap.put("rateAfg9", getRate(personCnt, afg9));
+            }
+            else{
+                resultMap.put("rateAfg5", "0");
+                resultMap.put("rateAfg6", "0");
+                resultMap.put("rateAfg7", "0");
+                resultMap.put("rateAfg8", "0");
+                resultMap.put("rateAfg9", "0");
+            }
+            
+            if(corpCnt > 0){
+                resultMap.put("rateAfg10", getRate(corpCnt, afg10));
+                resultMap.put("rateAfg11", getRate(corpCnt, afg11));
+                resultMap.put("rateAfg12", getRate(corpCnt, afg12));
+                resultMap.put("rateAfg13", getRate(corpCnt, afg13));
+                resultMap.put("rateAfg14", getRate(corpCnt, afg14));
+                resultMap.put("rateAfg15", getRate(corpCnt, afg15));
+                resultMap.put("rateAfg16", getRate(corpCnt, afg16));
+                resultMap.put("rateAfg17", getRate(corpCnt, afg17));
+                resultMap.put("rateAfg18", getRate(corpCnt, afg18));
+                resultMap.put("rateAfg19", getRate(corpCnt, afg19));
+                resultMap.put("rateAfg20", getRate(corpCnt, afg20));
+                resultMap.put("rateAfg21", getRate(corpCnt, afg21));
+            }
+            else{
+                resultMap.put("rateAfg10", "0");
+                resultMap.put("rateAfg11", "0");
+                resultMap.put("rateAfg12", "0");
+                resultMap.put("rateAfg13", "0");
+                resultMap.put("rateAfg14", "0");
+                resultMap.put("rateAfg15", "0");
+                resultMap.put("rateAfg16", "0");
+                resultMap.put("rateAfg17", "0");
+                resultMap.put("rateAfg18", "0");
+                resultMap.put("rateAfg19", "0");
+                resultMap.put("rateAfg20", "0");
+                resultMap.put("rateAfg21", "0");
+            }
+        }
+        return resultMap;
+    }
+
+    /**
+     * <pre>
+     * 1. 개요 : 만족도조사 실시 정보
+     * </pre>
+     * @Method Name : selectsatisfactionInfo
+     * @author : Administrator
+     * @date : 2017. 9. 15.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#selectsatisfactionInfo(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsReqDataVO)
+     * @param bsnsReqDataVO
+     * @return
+     * @throws Exception
+     */ 	
+    public EgovMap selectSatisfactionInfo(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        
+         EgovMap resultMap = bsnsreqstinqireDao.selectSatisfactionInfo(bsnsReqDataVO); 
+        
+        if(StringUtil.empty(resultMap) || resultMap.size() <= 0){
+            resultMap = new EgovMap();
+            
+            resultMap.put("svyId", "0");
+        }
+        
+        resultMap.put("bizSeq", bsnsReqDataVO.getBizSeq());
+        
+        return resultMap;
+    }
+
+    /**
+     * <pre>
+     * 1. 개요 : 신청자 등록 엑셀 등록 처리
+     * </pre>
+     * @Method Name : insertBsnsAppForExcel
+     * @author : Administrator
+     * @date : 2017. 9. 1.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#insertBsnsAppForExcel(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO)
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int insertBsnsAppForExcel(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        final int tREAD_FIRST_COL = 0;
+        final int tREAD_FIRST_ROW = 6;
+        
+        int result = 0;
+        String bizSeq = bsnsBasicInfoVO.getBizSeq();
+        
+        Workbook workbook = null;
+        Sheet sheet = null;
+
+        String excelDownloadDir = propertiesService.getString("kita.crm.serviceFile.path");
+        String excelFileName = bsnsBasicInfoVO.getFileName();
+        
+        File srcFile = new File(excelDownloadDir + excelFileName);
+        
+        if(srcFile.exists()){
+            try{
+                workbook = Workbook.getWorkbook(srcFile);                   //존재하는 엑셀파일 경로를 지정
+                workbook.getSheets();
+
+                sheet = workbook.getSheet(0);                               //첫번째 시트를 지정합니다.
+
+                int rowCount = sheet.getRows();                             //총 row수를 가져옵니다.
+                
+                int fileRowId = 1;
+                
+                for (int i = tREAD_FIRST_COL; i < rowCount && i < (tREAD_FIRST_COL+1000); i++) {
+                    
+                    bsnsBasicInfoVO.setSource("F");
+                    bsnsBasicInfoVO.setFileRowId(Integer.toString(fileRowId));
+                    
+                    fileRowId += 2;
+                    
+                    int k = tREAD_FIRST_COL;
+                    String tStrValue = getCell(sheet, k, i);
+                    
+                    if(tStrValue.trim().length() == 0) break;               //첫번째 열이 비어 있으면 종료 된 것으로 간주한다.
+                    
+                    k++;
+                    bsnsBasicInfoVO.setCompNo(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCorpKorNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCeoNm(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setAppNm(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCellNo(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setEmail(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setProdNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCorpTel(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setDept(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setPozNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setPersonResiNo(getCell(sheet, k, i).replace(" ", ""));
+                    
+                    result = basicAppProcess(bsnsBasicInfoVO);
+                }
+                
+            } catch (Exception e){
+                throw e;
+            }finally {
+                try {
+                    if(workbook != null){
+                        workbook.close();
+                    }
+                }catch (Exception ew){
+                    
+                }
+            }
+            
+        }
+        return result;
+    }
+
+    /**
+     * <pre>
+     * 1. 개요 : 사업완료 및 업로드 엑셀 내 신청자를 참가자로 변경처리 기능
+     * </pre>
+     * @Method Name : insertBsnsAppCompForExcel
+     * @author : Administrator
+     * @date : 2017. 9. 5.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#insertBsnsAppCompForExcel(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO)
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int insertBsnsAppCompForExcel(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        final int tREAD_FIRST_COL = 0;
+        final int tREAD_FIRST_ROW = 6;
+        
+        int result = 0;
+        String bizSeq = bsnsBasicInfoVO.getBizSeq();
+        
+        Workbook workbook = null;
+        Sheet sheet = null;
+
+        String excelDownloadDir = propertiesService.getString("kita.crm.serviceFile.path");
+        String excelFileName = bsnsBasicInfoVO.getFileName();
+        
+        File srcFile = new File(excelDownloadDir + excelFileName);
+        
+        if(srcFile.exists()){
+            try{
+                //사업 구분 및 편집여부 조회
+                BsnsReqDataVO bsnsReqDataVO = new BsnsReqDataVO();
+                bsnsReqDataVO.setBizSeq(bsnsBasicInfoVO.getBizSeq());
+                
+                List<DkMap> resultMapList = bsnsreqstinqireDao.selectBsnsreqstinqireDetail(bsnsReqDataVO);
+                
+                String gubun = "";
+                String editTypeYn = "";
+                
+                if(resultMapList.size() > 0){
+                    DkMap resultMap = resultMapList.get(0);
+                    gubun = "1";//resultMap.get("gubun").toString();
+                    editTypeYn = "Y"; //resultMap.get("editTypeYn").toString();
+                } else {
+                    return result;
+                }
+                
+                workbook = Workbook.getWorkbook(srcFile);                   //존재하는 엑셀파일 경로를 지정
+                workbook.getSheets();
+
+                sheet = workbook.getSheet(0);                               //첫번째 시트를 지정합니다.
+
+                int rowCount = sheet.getRows();                             //총 row수를 가져옵니다.
+                
+                int fileRowId = 1;
+                
+                for (int i = tREAD_FIRST_COL; i < rowCount && i < (tREAD_FIRST_COL+1000); i++) {
+                    
+                    bsnsBasicInfoVO.setSource("F");
+                    bsnsBasicInfoVO.setFileRowId(Integer.toString(fileRowId));
+                    
+                    bsnsBasicInfoVO.setGubun(gubun);
+                    bsnsBasicInfoVO.setEditTypeYn(editTypeYn);
+                    
+                    fileRowId += 2;
+                    
+                    int k = tREAD_FIRST_COL;
+                    String tStrValue = getCell(sheet, k, i);
+                    
+                    if(tStrValue.trim().length() == 0) break;               //첫번째 열이 비어 있으면 종료 된 것으로 간주한다.
+                    
+                    k++;
+                    bsnsBasicInfoVO.setCompNo(getCell(sheet, k, i).replaceAll(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCorpKorNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCeoNm(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setAppNm(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCellNo(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setEmail(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setProdNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCorpTel(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setDept(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setPozNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setPersonResiNo(getCell(sheet, k, i).replace(" ", ""));
+                    
+                    result = insertBizAppComplete(bsnsBasicInfoVO);
+                    
+                }
+                
+                //엑셀 파일 내 참석자 모두 저장 후 사업완료로 갱신
+                result = bsnsreqstinqireDao.updateBizCompleteYn(bsnsBasicInfoVO.getBizSeq());
+                
+            } catch (Exception e){
+                throw e;
+            }finally {
+                try {
+                    if(workbook != null){
+                        workbook.close();
+                    }
+                }catch (Exception ew){
+                    
+                }
+            }
+            
+        }
+        return result;
+    }
+
+    
+    
+    
+    
+    
+    public List<DkMap> selectBsnsreqstinqireDetail(BsnsReqDataVO bsnsReqDataVO) throws Exception{
+        return bsnsreqstinqireDao.selectBsnsreqstinqireDetail(bsnsReqDataVO);
+    }
+
+    public int selectBsnsreqstinqireDetailCount(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        return bsnsreqstinqireDao.selectBsnsreqstinqireDetailCount(bsnsReqDataVO);
+    }
+
+    public List<EgovMap> selectjibuInfoList(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        return bsnsreqstinqireDao.selectjibuInfoList(bsnsReqDataVO);
+    }
+
+    public List<DkMap> selectBizAppTemplateList(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        return bsnsreqstinqireDao.selectBizAppTemplateList(bsnsReqDataVO);
+    }
+
+    public List<EgovMap> selectBizAppItemList(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        return bsnsreqstinqireDao.selectBizAppItemList(bsnsReqDataVO);
+    }
+
+    public List<DkMap> selectBizIntroTemplateList(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        
+        String tpUrl = propertiesService.getString("kita.crm.bizTemplate.url");
+            
+        List<DkMap> resultList = bsnsreqstinqireDao.selectBizIntroTemplateList(bsnsReqDataVO);
+        
+        if(!StringUtil.empty(bsnsReqDataVO.getTemplateCode())){
+    
+            DkMap dkMap = new DkMap();
+            int i;
+            for (i = 0; i < resultList.size(); i++) {
+                
+                dkMap = resultList.get(i);
+                //base_url 을 프로퍼티파일에 설정된 값으로 치환
+                dkMap.put("templateHtml", dkMap.get("templateHtml").toString().replaceAll("#base_url#", tpUrl));
+                
+            }
+            resultList.set(i-1, dkMap);
+        }
+//        for (EgovMap egovMap : resultList) {
+//            //base_url 을 프로퍼티파일에 설정된 값으로 치환
+//            egovMap.put("TEMPLATE_HTML", egovMap.get("TEMPLATE_HTML").toString().replaceAll("#base_url#", tpUrl));
+//        }
+        
+        return resultList;
+    }
+    
+    public int insertBizAppItem(BizAppItemVO bizAppItemVO)  throws Exception{
+        
+        int result = 0;
+        
+        int itemSeq = bsnsreqstinqireDao.selectBizAppItemSeq(bizAppItemVO);
+        
+        String strSeq = String.valueOf(itemSeq);
+        
+        if(itemSeq > 0){
+            String itemHtml = bizAppItemVO.getItemHtml();
+            
+            bizAppItemVO.setItemHtml(itemHtml.replaceAll("_SEQ", "_"+strSeq));
+            
+            bizAppItemVO.setItemSeq(strSeq);
+            
+            result = bsnsreqstinqireDao.insertBizAppItem(bizAppItemVO);
+        }
+        
+        
+        return result;
+    }
+    
+    public int deleteBizAppItem(BizAppItemVO bizAppItemVO)  throws Exception{
+        
+        return bsnsreqstinqireDao.deleteBizAppItem(bizAppItemVO);
+    }
+    
+    public int insertBizAppTemplate(BizAppTemplateVO bizAppTemplateVO) throws Exception {
+
+        int result = 0;
+        
+        int tplSeq = bsnsreqstinqireDao.selectBizAppTplSeq(bizAppTemplateVO);
+        String strSeq = String.valueOf(tplSeq);
+        
+        if(tplSeq > 0){
+            String tplHtml = bizAppTemplateVO.getTplHtml();
+            
+            bizAppTemplateVO.setTplHtml(tplHtml.replaceAll("_SEQ", "_"+strSeq));
+            
+            bizAppTemplateVO.setTplSeq(strSeq);
+            
+            result = bsnsreqstinqireDao.insertBizAppTemplate(bizAppTemplateVO);
+        }
+        
+        
+        return result;
+    }
+
+    public int deleteBizAppTemplate(BizAppTemplateVO bizAppTemplateVO) throws Exception {
+        
+        return bsnsreqstinqireDao.deleteBizAppTemplate(bizAppTemplateVO);
+    }
+    
+    public int insertBizNtis(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        return bsnsreqstinqireDao.insertBizNtis(bsnsBasicInfoVO);
+    }
+    
+    public List<DkMap> selectBizNtis(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        return bsnsreqstinqireDao.selectBizNtis(bsnsBasicInfoVO);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    public List<EgovMap> selectBsnsreqstinqireAppView(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    public List<Map<String, Map<String, String>>> listIntegratedBiz(BsnsReqDataVO bsnsReqDataVO) throws Exception {
+        
+        List<Map<String, Map<String, String>>> arrBizInfo = new ArrayList<Map<String, Map<String, String>>>();
+        List<EgovMap> listBizInfo = new ArrayList<EgovMap> ();
+        
+        String schBizSeq ="";
+        
+        //통합신청관리 목록
+        listBizInfo = bsnsreqstinqireDao.selectIntegrateBizList(bsnsReqDataVO);
+        
+        
+        return null;
+    }
+
+    
+    
+/*****************************************************************************************************************************/    
+    
+    /**
+     * <pre>
+     * 개요 : 엑셀 셀 데이터 취득
+     * </pre>
+     * @Method Name : getCell
+     * @author : Administrator
+     * @date : 2017. 9. 1.
+     * @param sheet
+     * @param c
+     * @param r
+     * @return
+     */ 	
+    private String getCell(Sheet sheet, int c, int r){
+        Cell cell = sheet.getCell(c, r);
+
+        if(cell == null){
+            return "";
+        }
+        return cell.getContents();
+    }
+    
+    /**
+     * <pre>
+     * 개요 : 신청자,등록자 등록 처리(엑셀저장,웹화면 저장 공통)
+     * </pre>
+     * @Method Name : basicAppForExcelProcess
+     * @author : Administrator
+     * @date : 2017. 9. 1.
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int basicAppProcess(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        int result = 0;
+        DateUtil.getDatetimeString();
+        
+        String memberId = bsnsBasicInfoVO.getUserId();
+        String downloadDir = propertiesService.getString("kita.crm.serviceFile.path");
+        String fileName = bsnsBasicInfoVO.getFileName();
+        String fileName1 = bsnsBasicInfoVO.getFileName1();
+        String fileName2 = bsnsBasicInfoVO.getFileName2();
+        String fileName3 = bsnsBasicInfoVO.getFileName3();
+        String fileName4 = bsnsBasicInfoVO.getFileName4();
+        String fileName5 = bsnsBasicInfoVO.getFileName5();
+        String tYN = bsnsBasicInfoVO.gettYn();
+        
+        String bizSeq = bsnsBasicInfoVO.getBizSeq();
+        
+        String tempFileName = DateUtil.getDatetimeString();
+        String tempFileNameExcel = ("".equals(fileName)) ? "":tempFileName+"e"+fileName.substring(fileName.indexOf("."));
+        String tempFileName1 = ("".equals(fileName1)) ? "":tempFileName+"1"+fileName1.substring(fileName1.indexOf("."));
+        String tempFileName2 = ("".equals(fileName2)) ? "":tempFileName+"2"+fileName2.substring(fileName2.indexOf("."));
+        String tempFileName3 = ("".equals(fileName3)) ? "":tempFileName+"3"+fileName3.substring(fileName3.indexOf("."));
+        String tempFileName4 = ("".equals(fileName4)) ? "":tempFileName+"4"+fileName4.substring(fileName4.indexOf("."));
+        String tempFileName5 = ("".equals(fileName5)) ? "":tempFileName+"5"+fileName5.substring(fileName5.indexOf("."));
+        
+        int newCorpSeq = 0;
+        int newPersonSeq = 0;
+        
+        bsnsBasicInfoVO.setCompNoErms(StringUtil.removeMinusChar(bsnsBasicInfoVO.getCompNo()));
+        
+        //법인고객중복체크
+        int corpSeq = bsnsreqstinqireDao.selectDuplCorp(bsnsBasicInfoVO);
+        
+        bsnsBasicInfoVO.setCorpSeq(Integer.toString(corpSeq));
+        
+        if(corpSeq==0) {
+            newCorpSeq = bsnsreqstinqireDao.selectPersonCorpSEQ(bsnsBasicInfoVO); //NEXTVAL(시퀀스 가져오기)
+           
+            bsnsBasicInfoVO.setCorpSeq(Integer.toString(newCorpSeq));
+            String mainTelNo = bsnsBasicInfoVO.getMainTelNo();
+            
+            //법인고객 등록을 위한 전화번호 편집
+            bsnsBasicInfoVO.setMainTelNoErms(StringUtil.removeMinusChar(mainTelNo));
+            bsnsBasicInfoVO.setbTelNoErms(StringUtil.removeMinusChar(mainTelNo));
+            
+            //수출입 희망품목 편집
+            String itemKorNm = bsnsBasicInfoVO.getItemKorNm1()+"/"+bsnsBasicInfoVO.getItemKorNm2()+"/"+bsnsBasicInfoVO.getItemKorNm3();
+            bsnsBasicInfoVO.setItemKorNm(itemKorNm);
+            
+            //FAX번호 편집
+            bsnsBasicInfoVO.setMainFaxNoErms(StringUtil.removeMinusChar(bsnsBasicInfoVO.getMainFaxNoErms()));
+            
+            //법인고객 등록
+            result = bsnsreqstinqireDao.insertCorpCustomer(bsnsBasicInfoVO);
+            
+//            biz.insertCorpCustomer(dbManager,dataSetvalue
+//                    , dataSetvalue.getString("COMP_NO"), dataSetvalue.getString("CORP_KOR_NM")
+//                    , dataSetvalue.getString("CEO_NM"), dataSetvalue.getString("corpSeq"),"");  
+        } else {
+            
+//                dataSetvalue.put("corpSeq",corpSeq);
+//                dataSetvalue.put("noCorpSeq",corpSeq);
+//                corp_Seq = Integer.toString(corpSeq);
+            
+            //법인고객 갱신
+            result = bsnsreqstinqireDao.updateCorpCustomer(bsnsBasicInfoVO);
+//                biz.updateCorpCustomer(dbManager,dataSetvalue
+//                        , dataSetvalue.getString("COMP_NO"), dataSetvalue.getString("CORP_KOR_NM")
+//                        , dataSetvalue.getString("CEO_NM"), dataSetvalue.getString("corpSeq"),"");
+        }
+                
+        //전화번호 이메일로 체크
+        int personSeq = bsnsreqstinqireDao.selectDuplPerson(bsnsBasicInfoVO);
+        
+//        int personSeq = biz.getDuplPerson(dbManager,dataSetvalue.getString("APP_NM")
+//                ,dataSetvalue.getString("CELL_NO")
+//                ,dataSetvalue.getString("EMAIL")
+//                ,"");
+        //이름 생년월일로 체크
+        int personSeq2 = bsnsreqstinqireDao.selectDuplPerson2(bsnsBasicInfoVO);
+        
+//        int personSeq2 = biz.getDuplPerson2(dbManager,corpSeq
+//                ,dataSetvalue.getString("APP_NM")
+//                ,dataSetvalue.getString("PERSON_RESI_NO")
+//                );
+        if(personSeq == 0 && personSeq2 == 0) {
+            
+            //NEXTVAL(시퀀스 가져오기)
+            newCorpSeq = bsnsreqstinqireDao.selectPersonCorpSEQ(bsnsBasicInfoVO); 
+            
+            bsnsBasicInfoVO.setPersonSeq(Integer.toString(newCorpSeq));
+            
+            //회사번호 입력시 개인의 전화번호에 추가 ( '-'삭제 )
+            bsnsBasicInfoVO.setCorpTelErms(StringUtil.removeMinusChar(bsnsBasicInfoVO.getCorpTel()));
+            
+            //개인고객 등록 처리
+            result = bsnsreqstinqireDao.insertPersonCustomer(bsnsBasicInfoVO);
+            
+/*//            dataSetvalue.put("PERSON_SEQ",newPersonSeq);
+//            biz.insertPersonCustomer(dbManager,dataSetvalue
+//                    , dataSetvalue.getString("APP_NM"), dataSetvalue.getString("CELL_NO")
+//                    , dataSetvalue.getString("EMAIL"), dataSetvalue.getString("PERSON_SEQ")
+//                    , dataSetvalue.getString("corpSeq"),"");
+*/    //          biz.deletePersonContact(dbManager, dataSetvalue);               
+    //      daoCustomerManage.insertPersonContactForPrivate(dbManager, dataSetvalue);
+        } else {
+            /*
+             * hjh
+             * 기존코드의 문제
+             * CRM DB의 정보와 참가 신청을 하려는 업체의 입력 정보가 맞지 않을 때 잘못된 업체(person_seq가 0인)로 등록되고 있으며 "중복 신청입니다."라는 팝업 발생
+             * 업체에서 협회로 연락, 오류로 접수됨
+             * 확인 결과 E-mail 정보가 달라 DB에서 찾지 못하고, 로직상의 오류가 됨
+             * 
+             * 문제의 원인은 personSeq가 0, personSeq2가 업체 정보로 나왔을 때 아래 코드같이 PERSON_SEQ을 0인 값으로 저장, 오류가 발생함
+             */
+            /*
+             * 기존코드
+            dataSetvalue.put("PERSON_SEQ",personSeq);
+            
+            biz.updatePersonCustomer(dbManager,dataSetvalue
+                    , dataSetvalue.getString("APP_NM"), dataSetvalue.getString("CELL_NO")
+                    , dataSetvalue.getString("EMAIL"), dataSetvalue.getString("PERSON_SEQ")
+                    , dataSetvalue.getString("corpSeq"),"");
+            // 아래 주석은 원래 되어 있었음
+    //      biz.deletePersonContact(dbManager, dataSetvalue);               
+    //      daoCustomerManage.insertPersonContactForPrivate(dbManager, dataSetvalue);
+            */
+            
+            // personSeq2가 0이 아닐 경우, 참가 신청을 하려는 업체의 입력정보 중 이름, 생년월일을 우선으로 조회, 업데이트하는 방식으로 잡음
+            if(personSeq == 0 && personSeq2 != 0)
+                personSeq = personSeq2;
+            
+            bsnsBasicInfoVO.setPersonSeq(Integer.toString(personSeq));
+            
+            //개인고객업데이트
+            result = bsnsreqstinqireDao.updatePersonCustomer(bsnsBasicInfoVO);
+            
+            /*dataSetvalue.put("PERSON_SEQ",personSeq);
+            
+            biz.updatePersonCustomer(dbManager,dataSetvalue
+                    , dataSetvalue.getString("APP_NM"), dataSetvalue.getString("CELL_NO")
+                    , dataSetvalue.getString("EMAIL"), dataSetvalue.getString("PERSON_SEQ")
+                    , dataSetvalue.getString("corpSeq"),"");*/
+        }
+        
+        
+        int cntResult = bsnsreqstinqireDao.selectDuplBizApp(bsnsBasicInfoVO);
+        // cntResult.next();
+        
+        if(cntResult>0) {
+            result = 2;// 중복 신청
+            return result;
+        }
+        
+        File tgetDir = new File(downloadDir+memberId+"/");
+        if(!tgetDir.exists()){
+            if(!tgetDir.mkdirs())
+                tgetDir.mkdirs();
+        }
+        // 1번째 첨부파일 저장
+        if (!"".equals(fileName)){
+            copyFile(downloadDir+fileName, downloadDir+tempFileNameExcel);
+    //      DRM.Extract(downloadDir, downloadDir, fileName1, tempFileName1);
+        }
+        // 1번째 첨부파일 저장
+        if (!"".equals(fileName1)){
+            copyFile(downloadDir+fileName1, downloadDir+tempFileName1);
+    //      DRM.Extract(downloadDir, downloadDir, fileName1, tempFileName1);
+        }
+        // 2번째 첨부파일 저장
+        if (!"".equals(fileName2)){
+            copyFile(downloadDir+fileName2, downloadDir+tempFileName2);
+    //      DRM.Extract(downloadDir, downloadDir, fileName1, tempFileName1);
+        }
+        // 3번째 첨부파일 저장
+        if (!"".equals(fileName3)){
+            copyFile(downloadDir+fileName3, downloadDir+tempFileName3);
+    //      DRM.Extract(downloadDir, downloadDir, fileName1, tempFileName1);
+        }
+        // 4번째 첨부파일 저장
+        if (!"".equals(fileName4)){
+            copyFile(downloadDir+fileName4, downloadDir+tempFileName4);
+    //      DRM.Extract(downloadDir, downloadDir, fileName1, tempFileName1);
+        }
+        // 5번째 첨부파일 저장
+        if (!"".equals(fileName5)){
+            copyFile(downloadDir+fileName5, downloadDir+tempFileName5);
+    //      DRM.Extract(downloadDir, downloadDir, fileName1, tempFileName1);
+        }
+        bsnsBasicInfoVO.setFilePath("/upload/marketing/"+tempFileNameExcel);
+        bsnsBasicInfoVO.setFilePath1("/upload/marketing/"+tempFileName1);
+        bsnsBasicInfoVO.setFilePath2("/upload/marketing/"+tempFileName2);
+        bsnsBasicInfoVO.setFilePath3("/upload/marketing/"+tempFileName3);
+        bsnsBasicInfoVO.setFilePath4("/upload/marketing/"+tempFileName4);
+        bsnsBasicInfoVO.setFilePath5("/upload/marketing/"+tempFileName5);
+        
+        result = bsnsreqstinqireDao.insertBasicApp(bsnsBasicInfoVO);
+        
+        
+//        rVal=biz.insertBasicApp(dbManager, dataSetvalue);
+//        DaoCustomerPrivateManage dcpo = new DaoCustomerPrivateManage();
+//        dataSetvalue.put("personSeq", dataSetvalue.getString("PERSON_SEQ"));
+//        dataSetvalue.put("typeGubun", "I");
+        
+        
+        /************************* 추후 고객 등록 메소드가 개발 완료되면 해당 메소드를 호출하여 등록 처리 ********************************
+        bsnsBasicInfoVO.setTypeGubun("I");
+
+        bsnsBasicInfoVO.setMaxCnt("0");
+        
+        result = bsnsreqstinqireDao.insertPersonContact(bsnsBasicInfoVO);
+        ************************************************************************************************************************************/
+        
+        if(!"Y".equals(tYN)) {
+            if( memberId != null &&   !"".equals(memberId) ) {
+                String strOs = System.getProperty("os.name");
+                String osName = "1";
+                if(strOs.indexOf("NT")>-1 || strOs.toLowerCase().indexOf("windows")>-1){
+                    osName = "0";
+                } 
+                bsnsBasicInfoVO.setOsName(osName);
+                result = bsnsreqstinqireDao.updateKitaInfo(bsnsBasicInfoVO);
+            }
+            
+        }
+        //신청 시 이메일 / SMS 발송 테이블 저장
+        //SMS / EMAIL INSERT
+        if("Y".equals(bsnsBasicInfoVO.getAppGuideSmsEmailYn())){
+            bsnsBasicInfoVO.setMid("" + System.nanoTime());
+            bsnsBasicInfoVO.setRid("crm");
+            /*
+            if(dataSetvalue.getString("SOURCE") != null && "W".equals(dataSetvalue.getString("SOURCE"))){
+                String APP_GUIDE_SMS_CONTENTS = "[" + dataSetvalue.getString("BIZ_TITLE") + "] 참가 대기신청이 성공적으로 접수되었습니다. 감사합니다.";//신청완료 SMS 내용
+                dataSetvalue.put("APP_GUIDE_SMS_CONTENTS", APP_GUIDE_SMS_CONTENTS);
+                String APP_GUIDE_EMAIL_TITLE = "[한국무역협회] [" + dataSetvalue.getString("BIZ_TITLE") + "] 참가신청 확인 메일";//신청완료 이메일 제목
+                dataSetvalue.put("APP_GUIDE_EMAIL_TITLE", APP_GUIDE_EMAIL_TITLE);
+                String APP_GUIDE_EMAIL_CONTENTS = "[" + dataSetvalue.getString("BIZ_TITLE") + "] 참가 대기신청이 성공적으로 접수되었습니다. 감사합니다.";//신청완료 이메일 내용
+                dataSetvalue.put("APP_GUIDE_EMAIL_CONTENTS", APP_GUIDE_EMAIL_CONTENTS);
+            }
+            */
+            byte[] temp = bsnsBasicInfoVO.getMsg().getBytes();//dataSetvalue.getString("APP_GUIDE_SMS_CONTENTS").getBytes();
+            if(temp.length > 80){
+                result = bsnsreqstinqireDao.insertMmsSendForOnlineBiz(bsnsBasicInfoVO);
+                //biz.insertMmsSendForOnlineBiz(dbManager, dataSetvalue);
+            }else{
+                result = bsnsreqstinqireDao.insertSmsSendForOnlineBiz(bsnsBasicInfoVO);
+                //biz.insertSmsSendForOnlineBiz(dbManager, dataSetvalue);
+            }
+        }
+        //예약문자 발송 등록
+        if(bsnsBasicInfoVO.getTrSenddate() != null && !"".equals(bsnsBasicInfoVO.getTrSenddate())){
+            result = bsnsreqstinqireDao.insertSmsReservedSendForOnlineBiz(bsnsBasicInfoVO);
+        }
+//        if(dataSetvalue.getString("APP_SMS_RESERVED_DATE") != null && !"".equals(dataSetvalue.getString("APP_SMS_RESERVED_DATE"))){
+//            biz.insertSmsReservedSendForOnlineBiz(dbManager, dataSetvalue);
+//        }
+        
+        return result;
+        
+    }
+    
+    /**
+     * <pre>
+     * 개요 :  사업완료 및 업로드 엑셀 내 신청자를 참가자로 변경처리 기능
+     * </pre>
+     * @Method Name : insertBizAppComplete
+     * @author : Administrator
+     * @date : 2017. 9. 5.
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int insertBizAppComplete(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        int result = 0;
+        
+        /*
+         * * 기 등록된 사람인지, 신규 등록자인지 확인
+         * 
+         * - 기존에 BIZ_APPLICATION에 신청된 사람인지 확인
+         * - 기존에 신청된 사람이면 ATTENDANCE_ORDER_NUM+1 업데이트
+         * 
+         * - 기존에 등록된 사람이 아니라면 아래 로직 그대로 수행 후 INSERT할 때 ATTENDANCE_ORDER_NUM+1으로 처리
+         */
+        String bizSeq = bsnsBasicInfoVO.getBizSeq();
+        
+        String gubun = bsnsBasicInfoVO.getGubun();
+        String editTypeYn = bsnsBasicInfoVO.getEditTypeYn();           
+
+        String compNo = bsnsBasicInfoVO.getCompNo();
+        String corpKorNm = bsnsBasicInfoVO.getCorpKorNm();
+        String ceoNm = bsnsBasicInfoVO.getCeoNm();
+        String appNm = bsnsBasicInfoVO.getAppNm();
+        String cellNo = bsnsBasicInfoVO.getCellNo();
+        String email = bsnsBasicInfoVO.getEmail();
+        
+        final int SEARCH_TYPE_CNT = 2;
+        
+        if(!StringUtil.isEmpty(bizSeq) /* && !appNm.equals("") */ ) {
+            for(int i = 0 ; i < SEARCH_TYPE_CNT ; i++) {
+                
+                bsnsBasicInfoVO.setSearchType(i+1);
+                
+                BsnsBasicInfoVO completeVO = new BsnsBasicInfoVO();
+                
+                BsnsBasicInfoVO attendVO;
+                
+                completeVO = bsnsreqstinqireDao.selectBizAttendanceComplete(bsnsBasicInfoVO);
+                
+                if(completeVO != null){
+                    
+                    String appNm1 = "";
+                    String useBizSeq = "";
+                    String useAppSeq = "";
+                    String usePersonSeq = "";
+                    if(appNm1.equals("")) {
+                        useBizSeq = completeVO.getBizSeq();
+                        useAppSeq = completeVO.getAppSeq();
+                        usePersonSeq = completeVO.getPersonSeq();
+                    }else{
+                        useBizSeq = completeVO.getBizSeq();
+                        useAppSeq = completeVO.getAppSeq1();
+                        usePersonSeq = completeVO.getPersonSeq1();
+                    }
+                    
+                    //completeVO.setGubun(gubun);
+                    
+                    String existAttendanceOrderNum = completeVO.getAttendanceOrderNum();
+                    
+                    if(!StringUtil.isEmpty(existAttendanceOrderNum)){ //이미 참가자로 처리된 사람
+                        return 1;
+                    } else { //참가로 처리되어 있지 않은 사람
+                        //if(gubun.equals("1")){
+                            completeVO.setAttendancePersonSeq(usePersonSeq);
+                            
+                        //}else {
+                        //    completeVO.setAttendancePersonSeq(useAppSeq);
+                       // }
+                        
+                        
+                        // 참가자 선별 시 체크박스로 다중으로 선택/선별할 수 있도록 기능 추가
+                        String chkAttendanceYn = bsnsBasicInfoVO.getChkAttendanceYn();
+                        String chkAttendanceSeqList = bsnsBasicInfoVO.getChkAttendanceSeqList();
+                        
+                        if(!chkAttendanceYn.equals("") && chkAttendanceYn.equals("Y") 
+                                && !chkAttendanceSeqList.equals("")) {
+                            
+                            String [] seqList = chkAttendanceSeqList.split(",");
+                            for(int j = 0 ; j < seqList.length ; j++) {
+                                //참석 여부 조회 객체 초기화
+                                attendVO = new BsnsBasicInfoVO();
+                                
+                                if(!seqList[i].equals("")) {
+                                    completeVO.setAttendancePersonSeq(seqList[i]);
+                                    //기본형일 경우
+                                    //if("1".equals(gubun)){
+                                        attendVO = bsnsreqstinqireDao.selectAttendanceYn(completeVO);
+                                        if(StringUtils.isEmpty(attendVO)){
+                                            result = bsnsreqstinqireDao.updateAttendanceYn(completeVO);
+                                        }
+/*                                    } else{ //맞춤형일경우
+                                        attendVO = bsnsreqstinqireDao.selectAttendanceYn2(completeVO);
+                                        if(StringUtils.isEmpty(attendVO)){
+                                            result = bsnsreqstinqireDao.updateAttendanceYn2(completeVO);
+                                        }
+                                    }*/
+                                }
+                            }
+                        } else {
+                          //기본형일 경우
+                            //if("1".equals(gubun)){ 
+                                attendVO = bsnsreqstinqireDao.selectAttendanceYn(completeVO);
+                                if(StringUtils.isEmpty(attendVO)){
+                                    result = bsnsreqstinqireDao.updateAttendanceYn(completeVO);
+                                }
+/*                            } else{ //맞춤형일경우
+                                attendVO = bsnsreqstinqireDao.selectAttendanceYn2(completeVO);
+                                if(StringUtils.isEmpty(attendVO)){
+                                    result = bsnsreqstinqireDao.updateAttendanceYn2(completeVO);
+                                }
+                            }*/                        
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    
+    
+    /**
+     * <pre>
+     * 1. 개요 : 사업신청완료 수정/등록/삭제/TEMP테이블 저장(전처리) 공통 프로세스
+     * </pre>
+     * @Method Name : cmmBizAppProc
+     * @author : Administrator
+     * @date : 2017. 10. 12.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#cmmBizAppProc(org.springframework.web.multipart.MultipartHttpServletRequest, kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO)
+     * @param multiRequest
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int cmmBizAppProc(MultipartHttpServletRequest multiRequest, BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        String mode = bsnsBasicInfoVO.getMode();
+        String dept = bsnsBasicInfoVO.getDept();
+        
+        int result = 0;
+        LOGGER.info("111111mobileYn : "+bsnsBasicInfoVO.getMobileYn());
+        LOGGER.info("bsnsBasicInfoVO.getDept================== :: "+bsnsBasicInfoVO.getDept());
+        //삭제처리가 아닌경우에 처리 수행 
+        if ("C".equals(mode) || "U".equals(mode) || "V".equals(mode)) {
+            
+            LOGGER.info("11111====getExcelFile1Yn : "+bsnsBasicInfoVO.getExcelFile1Yn());
+            LOGGER.info("11111====getFileName1 : "+bsnsBasicInfoVO.getFileName1());
+            LOGGER.info("11111====getFilePath1 : "+bsnsBasicInfoVO.getFilePath1());
+            LOGGER.info("11111====getFileTempName1 : "+bsnsBasicInfoVO.getFileTempName1());
+            
+            LOGGER.info("after getFilePath1="+"/MT02/"+dept+"/");
+            
+            
+            LOGGER.info("11111====getReportContent : "+bsnsBasicInfoVO.getReportContent());
+            
+            
+            String bizSeq = bsnsBasicInfoVO.getBizSeq();
+            
+            String FileDate = DateUtil.getDatetimeString();
+            
+            String reportContent = bsnsBasicInfoVO.getReportContent();
+            
+            
+            //reportContent = reportContent.replaceAll("href=\"/", "href=\"/"+"http://cmember.kita.net");
+            reportContent = reportContent.replaceAll("href=\"#\"", "");
+            
+            String tpUrl = propertiesService.getString("kita.crm.bizTemplate.url");
+            FileInputStream fis = null;
+            String upDir = propertiesService.getString("kita.crm.MT0020UploadExcel.path"); //kita.crm.MT0020UploadExcel.path =C:/Workspace2/kita_crm/member/upload/MT02/
+            String upDirTemp = propertiesService.getString("kita.crm.MT0020UploadExcelTemp.path");
+            LOGGER.info("before upDir="+upDir);
+            LOGGER.info("after upDir="+upDir+dept+"/");
+            upDir = upDir+dept+"/";
+            
+            
+            String dirPath = "/MT02/" +dept+"/";
+            LOGGER.info("==========dirPath : "+dirPath);
+            bsnsBasicInfoVO.setFilePath(dirPath);
+            bsnsBasicInfoVO.setFilePath1(dirPath);
+            bsnsBasicInfoVO.setFilePath2(dirPath);
+            bsnsBasicInfoVO.setFilePath3(dirPath);
+            bsnsBasicInfoVO.setFilePath4(dirPath);
+            bsnsBasicInfoVO.setFilePath5(dirPath);
+            bsnsBasicInfoVO.setFilePath6(dirPath);
+            bsnsBasicInfoVO.setFilePath7(dirPath);
+            
+            
+            if(CommonUtils.isNotEmpty(upDir)){
+                
+                File upD = new File(upDir);
+                if(!upD.exists())
+                    upD.mkdirs();
+            }
+            File drm = new File(drmMngUtil.DRMFilePath());
+            if(drm.exists() == false)
+            {
+                drm.mkdirs();
+            }
+            
+            String attachFileName1 = "";
+            String attachFileName2 = "";
+            String attachFileName3 = "";
+            String attachFileName4 = "";
+            String attachFileName5 = "";
+            
+            String tempFileName  = "";
+            String tempFileName1 = "";
+            String tempFileName2 = "";
+            String tempFileName3 = "";
+            String tempFileName4 = "";
+            String tempFileName5 = "";
+              
+    
+            int maxMega = StringUtil.zeroConvert(propertiesService.getString("kita.file.upload.limitSize"));
+            //int UPLOAD_MAX_SIZE = 1024 * 1024 * maxMega ;
+            
+            List<FileVO> fileList = commonMnmtService.saveAtchFiles(multiRequest, drmMngUtil.DRMFilePath());
+            FileVO fileVO = null;
+            String fileName="";
+            String fieldName = "";
+            String realFileName = "";
+            LOGGER.info("fileList.size() : "+fileList.size());
+            if(fileList!=null&&fileList.size()>0){
+                for (int i = 0; i < fileList.size(); i++) {
+                    
+                    fileVO = fileList.get(i);
+                    realFileName = FileDate + "";
+                
+                    fileName = fileVO.getPhysFileNm(); // fileVO.getFilePthCntn() + File.separator + fileVO.getAtchFileNm() ;
+                    fieldName = fileVO.getFileItem().getFieldName();
+                    LOGGER.info("fileName : "+fileName);
+                    LOGGER.info("fieldName : "+fieldName);
+                   /* if( fileName.lastIndexOf("\\") > -1 ) {
+                        fileName = fileName.substring((fileName.lastIndexOf("\\")+1), fileName.length());
+                    }*/
+        
+                    if (fileName.toLowerCase().lastIndexOf(".jsp") >= 0 || fileName.toLowerCase().lastIndexOf(".html") >= 0 || fileName.toLowerCase().lastIndexOf(".asp") >= 0 ||
+                        fileName.toLowerCase().lastIndexOf(".aspx") >= 0 || fileName.toLowerCase().lastIndexOf(".exe") >= 0 ||
+                        fileName.toLowerCase().lastIndexOf(".bat") >= 0 || fileName.toLowerCase().lastIndexOf(".php") >= 0 || fileName.toLowerCase().lastIndexOf(".inc") >= 0) {
+                        throw new Exception("허용되지 않는 확장자입니다.");
+                    }
+    
+                    if ("excelFile1".equals(fieldName)) {
+                        bsnsBasicInfoVO.setFileName1(fileName);
+                        
+                    } else if ("excelFile2".equals(fieldName)) {
+                        bsnsBasicInfoVO.setFileName2(fileName);
+                        
+                    } else if ("excelFile3".equals(fieldName)) {
+                        bsnsBasicInfoVO.setFileName3(fileName);
+                        
+                    } else if ("excelFile4".equals(fieldName)) {
+                        bsnsBasicInfoVO.setFileName4(fileName);
+                        
+                    } else if ("excelFile5".equals(fieldName)) {
+                        bsnsBasicInfoVO.setFileName5(fileName);
+                        
+                    }
+                    
+                    LOGGER.info("drmMngUtil.DRMFilePath() : "+drmMngUtil.DRMFilePath());
+                    LOGGER.info("upDir : "+upDir);
+                    LOGGER.info("fileVO.getPhysFileNm() : "+fileVO.getPhysFileNm());
+                    
+                    //업로드 대상 복호화 
+                    drmMngUtil.Extract(drmMngUtil.DRMFilePath(), upDir, fileVO.getPhysFileNm(), fileVO.getPhysFileNm());
+                    LOGGER.debug("File Dest :"+upDir+fileVO.getPhysFileNm());
+                    
+                    /*File file = new File(upDir+fileVO.getPhysFileNm());
+                    fis = new FileInputStream(file);*/
+                    
+                }
+                
+            }
+            
+            
+            
+            SimpleDateFormat simpleFormat=new SimpleDateFormat("yyyyMMddHHmmsss");
+            Calendar todayMicCal = Calendar.getInstance(); 
+            
+            
+            attachFileName1 = bsnsBasicInfoVO.getFileName1();
+            attachFileName2 = bsnsBasicInfoVO.getFileName2();
+            attachFileName3 = bsnsBasicInfoVO.getFileName3();
+            attachFileName4 = bsnsBasicInfoVO.getFileName4();
+            attachFileName5 = bsnsBasicInfoVO.getFileName5();
+            
+            
+            LOGGER.info("excelFile1Yn : "+bsnsBasicInfoVO.getExcelFile1Yn());
+            LOGGER.info("before====getFileName1 : "+bsnsBasicInfoVO.getFileName1());
+            if( attachFileName1.lastIndexOf("\\") > -1 ) {
+                attachFileName1 = attachFileName1.substring((attachFileName1.lastIndexOf("\\")+1), attachFileName1.length());
+                LOGGER.info("after====attachFileName1 : "+attachFileName1);
+            }
+            if( attachFileName2.lastIndexOf("\\") > -1 ) {
+                LOGGER.info("before====attachFileName2 : "+attachFileName2);
+                attachFileName2 = attachFileName2.substring((attachFileName2.lastIndexOf("\\")+1), attachFileName2.length());
+                LOGGER.info("after====attachFileName2 : "+attachFileName2);
+            }
+            if( attachFileName3.lastIndexOf("\\") > -1 ) {
+                LOGGER.info("before====attachFileName3 : "+attachFileName3);
+                attachFileName3 = attachFileName3.substring((attachFileName3.lastIndexOf("\\")+1), attachFileName3.length());
+                LOGGER.info("after====attachFileName3 : "+attachFileName3);
+            } 
+            if( attachFileName4.lastIndexOf("\\") > -1 ) {
+                LOGGER.info("before====attachFileName4 : "+attachFileName4);
+                attachFileName4 = attachFileName4.substring((attachFileName4.lastIndexOf("\\")+1), attachFileName4.length());
+                LOGGER.info("after====attachFileName4 : "+attachFileName4);
+            }
+            if( attachFileName5.lastIndexOf("\\") > -1 ) {
+                LOGGER.info("before====attachFileName5 : "+attachFileName5);
+                attachFileName5 = attachFileName5.substring((attachFileName5.lastIndexOf("\\")+1), attachFileName5.length());
+                LOGGER.info("after====attachFileName5 : "+attachFileName5);
+            } 
+            
+            
+            
+            tempFileName = simpleFormat.format(todayMicCal.getTime()); 
+            tempFileName1 = ("".equals(attachFileName1)) ? "":tempFileName+"1"+attachFileName1.substring(attachFileName1.indexOf("."));
+            tempFileName2 = ("".equals(attachFileName2)) ? "":tempFileName+"2"+attachFileName2.substring(attachFileName2.indexOf("."));
+            tempFileName3 = ("".equals(attachFileName3)) ? "":tempFileName+"3"+attachFileName3.substring(attachFileName3.indexOf("."));
+            tempFileName4 = ("".equals(attachFileName4)) ? "":tempFileName+"4"+attachFileName4.substring(attachFileName4.indexOf("."));
+            tempFileName5 = ("".equals(attachFileName5)) ? "":tempFileName+"5"+attachFileName5.substring(attachFileName5.indexOf("."));
+            
+            bsnsBasicInfoVO.setFileTempName1(tempFileName1);
+            bsnsBasicInfoVO.setFileTempName2(tempFileName2);
+            bsnsBasicInfoVO.setFileTempName3(tempFileName3);
+            bsnsBasicInfoVO.setFileTempName4(tempFileName4);
+            bsnsBasicInfoVO.setFileTempName5(tempFileName5);
+            
+            
+            File tgetDir = new File(upDir);
+            if(!tgetDir.exists()){
+                if(!tgetDir.mkdirs())
+                    tgetDir.mkdirs();
+            }
+            // 1번째 첨부파일 저장
+            if (!"".equals(attachFileName1)){
+                LOGGER.info("attachFileName1==============copyFile : "+attachFileName1);
+                fileMngUtil.copyFile(upDir+attachFileName1, upDir+tempFileName1);
+//              DRM.Extract(downloadDir, downloadDir+ "/"+dept_cd +"/", attachFileName1, tempFileName1);
+            }
+            // 2번째 첨부파일 저장
+            if (!"".equals(attachFileName2)){
+                fileMngUtil.copyFile(upDir+attachFileName2, upDir+tempFileName2);
+//              DRM.Extract(downloadDir, downloadDir+ "/"+dept_cd +"/", attachFileName2, tempFileName2);
+            }
+            // 3번째 첨부파일 저장
+            if (!"".equals(attachFileName3)){
+                fileMngUtil.copyFile(upDir+attachFileName3, upDir+tempFileName3);
+//              DRM.Extract(downloadDir, downloadDir+ "/"+dept_cd +"/", attachFileName3, tempFileName3);
+            }
+            // 4번째 첨부파일 저장
+            if (!"".equals(attachFileName4)){
+                fileMngUtil.copyFile(upDir+attachFileName4, upDir+tempFileName4);
+//              DRM.Extract(downloadDir, downloadDir+ "/"+dept_cd +"/", attachFileName4, tempFileName4);
+            }
+            // 5번째 첨부파일 저장
+            if (!"".equals(attachFileName5)){
+                fileMngUtil.copyFile(upDir+attachFileName5, upDir+tempFileName5);
+//              DRM.Extract(downloadDir, downloadDir+ "/"+dept_cd +"/", attachFileName5, tempFileName5);
+            }
+            
+            //fileMngUtil.copyFile(downloadDir+fileName, downloadDir+tempFileName1);
+            
+            
+            LOGGER.info("BsnsreqstinqireServiceImpl : SMS/E-MAIL내용 편집" );
+            String appGuideSmsContents = "";
+            String appGuideEmailTitle = "";
+            String appGuideEmailContents = "";
+            String appSmsReservedContents = "";
+            String smsContents = UtilManager.setChangeNull(bsnsBasicInfoVO.getAppGuideSmsContents(),""); // 신청확인 안내문자 내용
+            String emailTitle = UtilManager.setChangeNull(bsnsBasicInfoVO.getAppGuideEmailTitle(),""); // 신청확인 안내메일 제목
+            String emailContents = UtilManager.setChangeNull(bsnsBasicInfoVO.getAppGuideEmailContents(),""); // 신청확인 안내메일 내용
+            String smsReservedContents = UtilManager.setChangeNull(bsnsBasicInfoVO.getAppSmsReservedContents(),""); // 신청확인 예약문자 내용  
+            String bizTitle = UtilManager.setChangeNull(bsnsBasicInfoVO.getBizTitle(),"");
+            String bizSdate = UtilManager.setChangeNull(bsnsBasicInfoVO.getBizSdate(),""); //사업 시작 기간
+            String bizEdate = UtilManager.setChangeNull(bsnsBasicInfoVO.getBizEdate(),""); //사업 종료 기간
+            String bizPlace = UtilManager.setChangeNull(bsnsBasicInfoVO.getBizPlace(),"");
+            
+            if(smsContents.indexOf("#") > 0){
+                //APP_GUIDE_SMS_CONTENTS = "[" + BIZ_TITLE + "] 참가신청이 성공적으로 접수되었습니다. 감사합니다.";
+                appGuideSmsContents = smsContents.replace("[#BIZ_TITLE#]", "[" + bizTitle + "] ");
+                bsnsBasicInfoVO.setAppGuideSmsContents(appGuideSmsContents);
+            }
+            if(emailTitle.indexOf("#") > 0){
+                //APP_GUIDE_EMAIL_TITLE = "[한국무역협회] [" + BIZ_TITLE + "] 참가신청 확인 메일";
+                appGuideEmailTitle = emailTitle.replace("[#BIZ_TITLE#]", "[" + bizTitle + "]");
+                bsnsBasicInfoVO.setAppGuideEmailTitle(appGuideEmailTitle);
+                
+                //datasetvalue.put("APP_GUIDE_EMAIL_TITLE", APP_GUIDE_EMAIL_TITLE);
+            }
+            if(emailContents.indexOf("#") > 0){
+                //APP_GUIDE_EMAIL_CONTENTS = "[" + BIZ_TITLE + "] 참가신청이 성공적으로 접수되었습니다. 감사합니다.";
+                appGuideEmailContents = emailContents.replace("[#BIZ_TITLE#]", "[" + bizTitle + "]");
+                bsnsBasicInfoVO.setAppGuideEmailContents(appGuideEmailContents);
+                
+                //datasetvalue.put("APP_GUIDE_EMAIL_CONTENTS", APP_GUIDE_EMAIL_CONTENTS);
+            }
+            if(smsReservedContents.indexOf("#") > 0){
+                //APP_SMS_RESERVED_CONTENTS = "[" + BIZ_TITLE + "]" + BIZ_SDATE + "~" + BIZ_EDATE + BIZ_PLACE +"";
+                appSmsReservedContents = smsReservedContents.replace("[#BIZ_TITLE#]", "[" + bizTitle + "]").replace("#txt_start_date01#", bizSdate).replace("#txt_end_date01#", bizEdate).replace("#BIZ_PLACE#", bizPlace);
+                bsnsBasicInfoVO.setAppSmsReservedContents(appSmsReservedContents);
+                
+                //datasetvalue.put("APP_SMS_RESERVED_CONTENTS", APP_SMS_RESERVED_CONTENTS);
+            }
+            
+            
+            
+                
+                
+              //등록, 수정시 프로세스
+                if ("C".equals(mode) || "U".equals(mode)) {
+                    
+                  //사업신청관리 등록일 경우 BIZ_MST테이블의 시퀀스값을 새로 발번 받는다.
+                    if("C".equals(mode)){
+                        bizSeq = String.valueOf(bsnsreqstinqireDao.selectBizMstSeq(bsnsBasicInfoVO));
+                        
+                        //발번받은 시퀀스 값을 VO에 설정
+                        bsnsBasicInfoVO.setBizSeq(bizSeq);
+                    }
+                
+                
+                    String reportContentImgHtml = bsnsBasicInfoVO.getReportContentImgHtml();
+                    
+                    
+                    //String targetUrl = "/jsp/marketing/MT002042.jsp?target=MT002054&bizSeq="+bizSeq+"&bizEndYn="+bsnsBasicInfoVO.getBizEndYn()+"&bizTargetType="+bsnsBasicInfoVO.getBizTargetType();
+                    String targetUrl = tpUrl+"/kita/bsnsreqstmanage/bsnsreqstmanage/bsnsreqstregistEditType.do?bizSeq="+bizSeq+"&gubun=1&bizEndYn="+ bsnsBasicInfoVO.getBizEndYn()+"&bizTargetType="+bsnsBasicInfoVO.getBizTargetType();
+                    reportContentImgHtml = reportContentImgHtml.replaceAll("#goRegisterLink", targetUrl);
+                    
+                    
+                    if (!"".equals(attachFileName1) || "Y".equals(bsnsBasicInfoVO.getExcelFile1Yn())){
+                        //String file1Link = "http://cmember.kita.net/jsp/marketing/download_mt2_1.jsp?fileName=1&seq="+BIZ_SEQ;
+                        //String file1Link = "/jsp/marketing/download_mt2_1.jsp?fileName=1&seq="+bizSeq;
+                        String file1Link = tpUrl+"/cmm/cmmn/downloadFile.do?targetPathName=kita.crm.MT0020Down.path&fileName="+attachFileName1+"&outFileName="+attachFileName1;
+                        reportContentImgHtml = reportContentImgHtml.replace("#file1Link", file1Link);
+                    }
+                    if (!"".equals(attachFileName2) || "Y".equals(bsnsBasicInfoVO.getExcelFile2Yn())){
+                        //String file1Link = "http://cmember.kita.net/jsp/marketing/download_mt2_1.jsp?fileName=1&seq="+BIZ_SEQ;
+                        //String file2Link = "/jsp/marketing/download_mt2_1.jsp?fileName=2&seq="+bizSeq;
+                        String file2Link = tpUrl+"/cmm/cmmn/downloadFile.do?targetPathName=kita.crm.MT0020Down.path&fileName="+attachFileName2+"&outFileName="+attachFileName2;
+                        reportContentImgHtml = reportContentImgHtml.replace("#file2Link", file2Link);
+                    }
+                    if (!"".equals(attachFileName3) || "Y".equals(bsnsBasicInfoVO.getExcelFile3Yn())){
+                        //String file1Link = "http://cmember.kita.net/jsp/marketing/download_mt2_1.jsp?fileName=1&seq="+BIZ_SEQ;
+                        //String file3Link = "/jsp/marketing/download_mt2_1.jsp?fileName=3&seq="+bizSeq;
+                        String file3Link = tpUrl+"/cmm/cmmn/downloadFile.do?targetPathName=kita.crm.MT0020Down.path&fileName="+attachFileName3+"&outFileName="+attachFileName3;
+                        reportContentImgHtml = reportContentImgHtml.replace("#file3Link", file3Link);
+                    }
+                    if (!"".equals(attachFileName4) || "Y".equals(bsnsBasicInfoVO.getExcelFile4Yn())){
+                        //String file1Link = "http://cmember.kita.net/jsp/marketing/download_mt2_1.jsp?fileName=1&seq="+BIZ_SEQ;
+                        //String file4Link = "/jsp/marketing/download_mt2_1.jsp?fileName=4&seq="+bizSeq;
+                        String file4Link = tpUrl+"/cmm/cmmn/downloadFile.do?targetPathName=kita.crm.MT0020Down.path&fileName="+attachFileName4+"&outFileName="+attachFileName4;
+                        reportContentImgHtml = reportContentImgHtml.replace("#file4Link", file4Link);
+                    }
+                    if (!"".equals(attachFileName5) || "Y".equals(bsnsBasicInfoVO.getExcelFile5Yn())){
+                        //String file1Link = "http://cmember.kita.net/jsp/marketing/download_mt2_1.jsp?fileName=1&seq="+BIZ_SEQ;
+                        //String file5Link = "/jsp/marketing/download_mt2_1.jsp?fileName=5&seq="+bizSeq;
+                        String file5Link = tpUrl+"/cmm/cmmn/downloadFile.do?targetPathName=kita.crm.MT0020Down.path&fileName="+attachFileName5+"&outFileName="+attachFileName5;
+                        reportContentImgHtml = reportContentImgHtml.replace("#file5Link", file5Link);
+                    }
+                    
+                    bsnsBasicInfoVO.setReportContentImgHtml(reportContentImgHtml);
+                    
+                    // 지부 게시판에 등록된 글 업데이트 
+                    String N_INDEX = bsnsBasicInfoVO.getnIndex();
+                    String kitaValue = bsnsBasicInfoVO.getKitaValue();
+                    String jibuCdBoard = bsnsBasicInfoVO.getJibuCdBoard();
+                    if((!"".equals(kitaValue) && null != kitaValue && "Y".equals(kitaValue)) && (!"".equals(jibuCdBoard) && null != jibuCdBoard)){
+                        
+                        String jibuCd = bsnsBasicInfoVO.getJibuCdBoard(); //지부선택 추가
+                        bsnsBasicInfoVO.setsSiteid(JibuCode.siteId.get(jibuCd)); // 사이트아이디(기부 구분값)
+                        bsnsBasicInfoVO.setnBoardidx(String.valueOf(JibuCode.boardIdx.get(jibuCd))); // 게시판 인덱스(기부코드값)
+                        if("U".equals(mode)){ //사업신청관리 수정일 경우
+                            LOGGER.info("N_INDEX : "+N_INDEX);
+                            if (null != N_INDEX && !"".equals(N_INDEX) && Integer.parseInt(N_INDEX) > 0) {
+                                //사업신청수정시 지부게시판 수정
+                                result = updateGrpPost(bsnsBasicInfoVO);
+                            } else {
+                                //사업신청등록 완료시 각 지부 게시판에 등록
+                                int nIndex = insertGrpPost(bsnsBasicInfoVO);
+                                LOGGER.info("nIndex : "+nIndex);
+                                // N_INDEX = ""+nIndex;
+                                // datasetvalue.put("N_INDEX", N_INDEX);
+                                bsnsBasicInfoVO.setnIndex(String.valueOf(nIndex));
+                            }
+                        } else if("C".equals(mode)){ //사업신청관리 등록일 경우
+                          //사업신청등록 완료시 각 지부 게시판에 등록
+                            int nIndex = insertGrpPost(bsnsBasicInfoVO);
+                            // N_INDEX = ""+nIndex;
+                            // datasetvalue.put("N_INDEX", N_INDEX);
+                            bsnsBasicInfoVO.setnIndex(String.valueOf(nIndex));
+                        }
+                    }
+                }
+        }
+        
+        
+        bsnsBasicInfoVO.setGubun("1");
+        
+        if("C".equals(mode)){
+            //사업신청관리 등록
+            result = bsnsreqstinqireDao.insertBizApp(bsnsBasicInfoVO);
+            
+            //마케팅 등록을 위한 시퀀스값 반환
+            if(result >0){
+                result = Integer.parseInt(bsnsBasicInfoVO.getBizSeq());
+            }
+        } else if ("U".equals(mode)) {
+            //사업신청관리 수정
+            result = bsnsreqstinqireDao.updateBizApp(bsnsBasicInfoVO);
+            
+            //마케팅 등록을 위한 시퀀스값 반환
+            if(result >0){
+                result = Integer.parseInt(bsnsBasicInfoVO.getBizSeq());
+            }
+        } else if ("D".equals(mode)) {
+            //사업신청관리 삭제
+            result = deleteBizApp(bsnsBasicInfoVO);
+        } else if ("V".equals(mode)) {
+            LOGGER.info("222222getDept : "+bsnsBasicInfoVO.getDept());
+            //사업신청관리 템프 테이블 등록이 성공하면 반환받은 시퀀스값을 리턴한다.
+            result = insertBizAppProv(bsnsBasicInfoVO);
+        }
+        
+        return result;
+    }
+    
+    
+    
+    
+    /**
+     * <pre>
+     * 1. 개요 : 신규 사업결과등록 처리
+     * </pre>
+     * @Method Name : insertResultRegistProc
+     * @author : Administrator
+     * @date : 2017. 10. 23.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#insertResultRegistProc(org.springframework.web.multipart.MultipartHttpServletRequest, kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO)
+     * @param multiRequest
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int insertResultRegistProc(MultipartHttpServletRequest multiRequest, BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        int result = 0;
+        
+        // 1.사업개요 필수 항목 저장 처리
+        //사업신청관리 등록일 경우 BIZ_MST테이블의 시퀀스값을 새로 발번 받는다.
+        String bizSeq = String.valueOf(bsnsreqstinqireDao.selectBizMstSeq(bsnsBasicInfoVO));
+        
+        //발번받은 시퀀스 값을 VO에 설정
+        bsnsBasicInfoVO.setBizSeq(bizSeq);
+        
+        bsnsBasicInfoVO.setGubun("1");
+        
+        //사업신청관리 등록
+        result = bsnsreqstinqireDao.insertBizApp(bsnsBasicInfoVO);
+        
+        
+        if(result >0){
+            
+            // 2. 참가자 엑셀파일 저장 처리 
+            String FileDate = DateUtil.getDatetimeString();
+
+            String upDir    = propertiesService.getString("kita.crm.serviceFile.path"); //pConf.getProperty("serviceFile.path") +"/" ;
+            if(!upDir.equals("")){
+                File upD = new File(upDir);
+                if(!upD.exists())
+                    upD.mkdirs();
+            }
+            
+            File drm = new File(drmMngUtil.DRMFilePath());
+            
+            if(drm.exists() == false)
+            {
+                drm.mkdirs();
+            }
+
+            int maxMega = StringUtil.zeroConvert(propertiesService.getString("kita.file.upload.limitSize"));
+            int UPLOAD_MAX_SIZE = 1024 * 1024 * maxMega ;
+            String realFileName="";
+            
+            //첨부파일 정보를 저장한다
+            //List<FileVO> fileList = commonMnmtService.saveAtchFiles(multiRequest, upDir);
+            List<FileVO> fileList = commonMnmtService.saveAtchFiles(multiRequest, drmMngUtil.DRMFilePath());
+            String mmsFilename = "";
+            FileVO fv = null;
+            String fieldName = "";
+
+            if(fileList!=null&&fileList.size()>0){
+                fv = fileList.get(0);
+                
+                bsnsBasicInfoVO.setFileName(fv.getPhysFileNm());
+
+                //업로드 대상 복호화 
+                drmMngUtil.Extract(drmMngUtil.DRMFilePath(), upDir, fv.getPhysFileNm(), fv.getPhysFileNm());
+
+            }
+
+            //사업완료 및 업로드 엑셀 내 신청자를 참가자로 변경처리 기능
+            result = insertBsnsAppCompForExcel(bsnsBasicInfoVO);
+            
+            
+            if(result >0){
+                //설문조사 팝업 호출을 위해 시퀀스값 반환
+                result = Integer.parseInt(bizSeq);
+            }
+            
+        }
+        
+        return result;
+    }
+    
+    /**
+     * <pre>
+     * 개요 : 사업신청수정시 지부게시판 수정
+     * </pre>
+     * @Method Name : updateGrpPost
+     * @author : Administrator
+     * @date : 2017. 10. 11.
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int updateGrpPost(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        int result = 0;
+        
+        //String jibuCd = bsnsBasicInfoVO.getJibuCdBoard(); //지부선택 추가
+        //String bizSeqProv = bsnsBasicInfoVO.getBizSeqProv(); //임시저장테이블 키
+        //String S_SITEID = JibuCode.siteId.get(jibuCd); // 사이트아이디(기부 구분값)
+        //int N_BOARDIDX = JibuCode.boardIdx.get(jibuCd); // 게시판 인덱스(기부코드값)
+        
+        //String S_TITLE = bsnsBasicInfoVO.getBizTitle(); // 포스트제목
+        //String S_CONTENT = bsnsBasicInfoVO.getReportContentImgHtml(); // 포스트 내용 변경 2014.01.02
+        //String S_USERIP = bsnsBasicInfoVO.getUserIp(); // 작성자 아이피
+        //String N_INDEX = bsnsBasicInfoVO.getnIndex(); // 게시판 고유번호
+        
+        //String BIZ_SDATE = bsnsBasicInfoVO.getBizSdate(); //사업 시작 기간
+        //String BIZ_EDATE = bsnsBasicInfoVO.getBizEdate(); //사업 종료 기간
+        
+        
+       // bsnsBasicInfoVO.setsSiteid(JibuCode.siteId.get(jibuCd)); // 사이트아이디(기부 구분값)
+       // bsnsBasicInfoVO.setnBoardidx(String.valueOf(JibuCode.boardIdx.get(jibuCd))); // 게시판 인덱스(기부코드값)
+        
+        
+        //게시판 그룹값 조회 및 결과값 설정
+        bsnsBasicInfoVO.setnGroup(bsnsreqstinqireDao.selectMaxGroup(bsnsBasicInfoVO));
+        
+        //NTIS 정보 취득
+        List<DkMap> ntisInfoList = bsnsreqstinqireDao.selectBizNtis(bsnsBasicInfoVO);
+        
+        if(ntisInfoList.size() > 0){
+            DkMap ntisInfo = ntisInfoList.get(0);
+            
+            bsnsBasicInfoVO.setTypeCd(ntisInfo.get("typeCode").toString());
+            bsnsBasicInfoVO.setDeptCd1(ntisInfo.get("deptCode1").toString());
+            bsnsBasicInfoVO.setDeptCd2(ntisInfo.get("deptCode2").toString());
+            bsnsBasicInfoVO.setContinentCd(ntisInfo.get("continentCd").toString());
+            bsnsBasicInfoVO.setCountryCd(ntisInfo.get("countryCd").toString());
+            bsnsBasicInfoVO.setSectorCd(ntisInfo.get("sectorCd").toString());
+            bsnsBasicInfoVO.setItemCd(ntisInfo.get("itemcdCd").toString());
+            
+            //대륙/국가/업종/품목/유형/본부/부서 입력 추가
+            result = bsnsreqstinqireDao.updateGrpPost(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판 정보 갱신 대상이 없습니다. 처리를 취소합니다.");
+            }
+            
+            //대륙/국가/업종/품목/유형/본부/부서 삭제 
+            result = bsnsreqstinqireDao.deleteGrpPostRef(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판 정보 삭제 대상이 없습니다. 처리를 취소합니다.");
+            }
+            
+            //ktblog.GRP_POST_REF@TRADE 구분코드는 A1000(대륙), A2000(국가), A3000(업종), A4000(품목)
+               
+            //대륙 등록 
+            result = bsnsreqstinqireDao.insertGrpPostRefA001(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판에 대륙정보 등록에 실패하여 처리를 취소합니다.");
+            }
+            
+            //국가 등록 
+           result = bsnsreqstinqireDao.insertGrpPostRefA002(bsnsBasicInfoVO);
+           if(result < 1){
+               throw new Exception("게시판에 국가정보 등록에 실패하여 처리를 취소합니다.");
+           }
+           
+           //업종 등록 
+           result = bsnsreqstinqireDao.insertGrpPostRefA003(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판에 업종정보 등록에 실패하여 처리를 취소합니다.");
+            }
+           //품목 등록 
+           result = bsnsreqstinqireDao.insertGrpPostRefA004(bsnsBasicInfoVO);
+           if(result < 1){
+               throw new Exception("게시판에 품목정보 등록에 실패하여 처리를 취소합니다.");
+           }
+        }
+        
+        return result;
+    }
+    
+    public int insertGrpPost(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        int result = 0;
+        
+        //지부게시판 시퀀스 발번
+        int nIndex = bsnsreqstinqireDao.selectSeqGrpPost(bsnsBasicInfoVO);
+        bsnsBasicInfoVO.setnIndex(String.valueOf(nIndex));
+        
+        //게시판 그룹값 조회 및 결과값 설정
+        bsnsBasicInfoVO.setnGroup(bsnsreqstinqireDao.selectMaxGroup(bsnsBasicInfoVO));
+        
+        //NTIS 정보 취득
+        List<DkMap> ntisInfoList = bsnsreqstinqireDao.selectBizNtis(bsnsBasicInfoVO);
+        
+        if(ntisInfoList.size() > 0){
+            DkMap ntisInfo = ntisInfoList.get(0);
+            
+            bsnsBasicInfoVO.setTypeCd(ntisInfo.get("typeCode").toString());
+            bsnsBasicInfoVO.setDeptCd1(ntisInfo.get("deptCode1").toString());
+            bsnsBasicInfoVO.setDeptCd2(ntisInfo.get("deptCode2").toString());
+            bsnsBasicInfoVO.setContinentCd(ntisInfo.get("continentCd").toString());
+            bsnsBasicInfoVO.setCountryCd(ntisInfo.get("countryCd").toString());
+            bsnsBasicInfoVO.setSectorCd(ntisInfo.get("sectorCd").toString());
+            bsnsBasicInfoVO.setItemCd(ntisInfo.get("itemcdCd").toString());
+            
+            //대륙/국가/업종/품목/유형/본부/부서 입력 추가
+            result = bsnsreqstinqireDao.insertGrpPost(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판 정보를 등록할 수 없습니다. 처리를 취소합니다.");
+            }
+            
+            //대륙/국가/업종/품목/유형/본부/부서 삭제 
+            result = bsnsreqstinqireDao.deleteGrpPostRef(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판 정보 삭제 대상이 없습니다. 처리를 취소합니다.");
+            }
+            
+            //ktblog.GRP_POST_REF@TRADE 구분코드는 A1000(대륙), A2000(국가), A3000(업종), A4000(품목)
+               
+            //대륙 등록 
+            result = bsnsreqstinqireDao.insertGrpPostRefA001(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판에 대륙정보 등록에 실패하여 처리를 취소합니다.");
+            }
+            
+            //국가 등록 
+           result = bsnsreqstinqireDao.insertGrpPostRefA002(bsnsBasicInfoVO);
+           if(result < 1){
+               throw new Exception("게시판에 국가정보 등록에 실패하여 처리를 취소합니다.");
+           }
+           
+           //업종 등록 
+           result = bsnsreqstinqireDao.insertGrpPostRefA003(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("게시판에 업종정보 등록에 실패하여 처리를 취소합니다.");
+            }
+           //품목 등록 
+           result = bsnsreqstinqireDao.insertGrpPostRefA004(bsnsBasicInfoVO);
+           if(result < 1){
+               throw new Exception("게시판에 품목정보 등록에 실패하여 처리를 취소합니다.");
+           }
+           
+           result = bsnsreqstinqireDao.updateGrpBoard(bsnsBasicInfoVO);
+           if(result < 1){
+               throw new Exception("게시판 정보 갱신 대상이 없습니다. 처리를 취소합니다.");
+           }
+        
+        }
+        //DB 처리 정상완료시 발번받은 지부게시판 시퀀스를 반환
+        if(result > 0){
+            result = nIndex;
+        }
+        return result;
+    }
+    
+    
+    /**
+     * <pre>
+     * 개요 : 사업신청관리 정보 삭제
+     * </pre>
+     * @Method Name : deleteBizApp
+     * @author : Administrator
+     * @date : 2017. 10. 12.
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int deleteBizApp(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        int result = 0;
+        
+        //사업신청관리 Biz master 삭제
+        result = bsnsreqstinqireDao.deleteBizMst(bsnsBasicInfoVO);
+        if(result < 1){
+            throw new Exception("Biz master 삭제 갱신 대상이 없습니다. 처리를 취소합니다.");
+        }
+        
+        //사업신청관리 Biz app 삭제
+        //해당 테이블에 삭제 대상 데이터가 존재할경우
+        BsnsReqDataVO reqVO = new BsnsReqDataVO();
+        reqVO.setBizSeq(bsnsBasicInfoVO.getBizSeq());
+        
+        result = bsnsreqstinqireDao.selectBsnsreqstinqireDetailCount(reqVO);
+        if(result>0){
+            result = bsnsreqstinqireDao.deleteBizApp(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("Biz app 삭제 대상이 없습니다. 처리를 취소합니다.");
+            }
+        }
+        //사업신청관리 Biz app 상담회 및 사절단 신청자삭제
+        //해당 테이블에 삭제 대상 데이터가 존재할경우
+        result = bsnsreqstinqireDao.selectBizAppConsultCount(bsnsBasicInfoVO);
+        if(result>0){
+            result = bsnsreqstinqireDao.deleteBizAppConsult(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("상담회 및 사절단 신청자삭제 대상이 없습니다. 처리를 취소합니다.");
+            }
+        }
+        //사업신청관리 Biz app 상담회 및 사절단 신청자 Sub info 삭제
+        //해당 테이블에 삭제 대상 데이터가 존재할경우
+        result = bsnsreqstinqireDao.selectBizAppConsultSubCount(bsnsBasicInfoVO);
+        if(result>0){
+            result =  bsnsreqstinqireDao.deleteBizAppConsultSub(bsnsBasicInfoVO);
+            if(result < 1){
+                throw new Exception("상담회 및 사절단 신청자 Sub info 삭제 대상이 없습니다. 처리를 취소합니다.");
+            }
+        }
+        return result;
+    }
+    /**
+     * <pre>
+     * 1. 개요 : 사업신청관리 템프 테이블[Table : BIZ_MST_PROV]에 등록
+     * </pre>
+     * @Method Name : insertBizAppProv
+     * @author : Administrator
+     * @date : 2017. 9. 28.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#insertBizAppProv(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO)
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public int insertBizAppProv(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        
+        int rtv = 0;
+        //사업신청 시퀀스 발번
+        int bizSeqProv = bsnsreqstinqireDao.selectBizMstSeq(bsnsBasicInfoVO);
+        
+        bsnsBasicInfoVO.setBizSeqProv(String.valueOf(bizSeqProv));
+        
+        //임시저장 여부
+        if(!"Y".equals(bsnsBasicInfoVO.getTempYn())){
+            bsnsBasicInfoVO.setTempYn("N");
+        }
+        
+        //마감여부
+        if(!"Y".equals(bsnsBasicInfoVO.getEndYn())){
+            bsnsBasicInfoVO.setEndYn("N");
+        }
+        
+        //공고내리기여부
+        if(!"Y".equals(bsnsBasicInfoVO.getBizEndYn())){
+            bsnsBasicInfoVO.setBizEndYn("N");
+        }
+        
+        if("N".equals(bsnsBasicInfoVO.getAppGuideSmsEmailYn())){
+            
+            bsnsBasicInfoVO.setAppGuideSmsContents("");
+            bsnsBasicInfoVO.setAppGuideEmailTitle("");
+            bsnsBasicInfoVO.setAppGuideEmailContents("");
+            bsnsBasicInfoVO.setAppSmsReservedContents("");
+        }
+        //사업신청관리 템프 테이블 저장 
+        int result = bsnsreqstinqireDao.insertBizAppProv(bsnsBasicInfoVO);
+        
+        //템프테이블 저장이 성공일때 발급받은 사업신청관리 시퀀스 번호를 반환한다.
+        if(result > 0){
+            rtv = bizSeqProv;
+        }
+        
+        return rtv;
+    }
+    
+    /**
+     * <pre>
+     * 1. 개요 : 사업신청관리 템프 테이블 조회 [Table : BIZ_MST_PROV]
+     * </pre>
+     * @Method Name : selectBizAppViewProv
+     * @author : Administrator
+     * @date : 2017. 9. 29.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#selectBizAppViewProv(kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.vo.BsnsBasicInfoVO)
+     * @param bsnsBasicInfoVO
+     * @return
+     * @throws Exception
+     */ 	
+    public DkMap selectBizAppViewProv(BsnsBasicInfoVO bsnsBasicInfoVO) throws Exception {
+        return bsnsreqstinqireDao.selectBizAppViewProv(bsnsBasicInfoVO);
+    }
+    
+    
+    /**
+     * <pre>
+     * 1. 개요 : 설문지 TYPE 코드, TYPE 명 리스트 조회
+     * </pre>
+     * @Method Name : selectSurveyQuestionList
+     * @author : Administrator
+     * @date : 2017. 10. 26.
+     * @see kr.or.dkcns.kita.bsnsreqstmanage.bsnsreqstmanage.service.BsnsreqstinqireService#selectSurveyQuestionList()
+     * @return
+     * @throws Exception
+     */ 	
+    public List<EgovMap> selectSurveyQuestionList() throws Exception {
+        return bsnsreqstinqireDao.selectSurveyQuestionList();
+    }
+    
+    
+    /**
+     * <pre>
+     * 개요 : 파일 복사 처리
+     * </pre>
+     * @Method Name : copyFile
+     * @author : Administrator
+     * @date : 2017. 9. 1.
+     * @param source
+     * @param target
+     */ 	
+    private void copyFile(String source, String target) {
+        File sourceFile = new File(source);
+        FileInputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        FileChannel fcin = null;
+        FileChannel fcout = null;
+        
+        try {
+            inputStream = new FileInputStream(sourceFile);
+            outputStream = new FileOutputStream(target);
+
+            fcin = inputStream.getChannel();
+            fcout = outputStream.getChannel();
+
+            long size = fcin.size();
+            fcin.transferTo(0L, size, fcout);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { fcout.close(); } catch (IOException localIOException4) {}
+            try { fcin.close(); } catch (IOException localIOException5) {}
+            try { outputStream.close(); } catch (IOException localIOException6) {}
+            try { inputStream.close();  } catch (IOException localIOException7) { }
+        }
+    }
+
+    private String getRate(int totCnt, int cnt){
+        double rate = (double)((double)cnt/(double)totCnt) * 100; 
+
+        String dispPattern = "0.##";
+        DecimalFormat format = new DecimalFormat(dispPattern);
+        
+        return format.format(rate);
+    }
+
+  //템플릿 저장을 위한 임시
+   /* public int updateEmailTemplate(BizAppTemplateVO bizAppTemplateVO) throws Exception {
+        // TODO Auto-generated method stub
+        return bsnsreqstinqireDao.updateEmailTemplate(bizAppTemplateVO);
+    }*/
+
+    
+
+    /**
+     * <pre>
+     * 개요 : 사업신청관리상세
+     * </pre>
+     * @Method Name : getBizAppView
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param cstmrReqDataVO
+     * @return
+     * @throws Exception
+     */
+    public EgovMap getBizAppView(String bizSeq) throws Exception {
+        return bsnsreqstinqireDao.getBizAppView(bizSeq);
+    }
+    /**
+     * <pre>
+     * 개요 : 신청자상세 편집항목 목록 조회
+     * </pre>
+     * @Method Name : getBizApplicantItemView
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param cstmrReqDataVO
+     * @return
+     * @throws Exception
+     */
+    public List<Map> getBizApplicantItemView(String appSeq) throws Exception {
+        return bsnsreqstinqireDao.getBizApplicantItemView(appSeq);
+    }
+    /**
+     * <pre>
+     * 개요 : 사업신청자 상세-기본정보
+     * </pre>
+     * @Method Name : getBizApplicantView
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public Map getBizApplicantView(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        return bsnsreqstinqireDao.getBizApplicantView(bsnsreqstinqireDetailVO);
+    }
+    /**
+     * <pre>
+     * 개요 : 사업신청자 상세-써브정보(상담회,사절단)
+     * </pre>
+     * @Method Name : getBizApplicantViewSub
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public Map getBizApplicantViewSub(String appSeq) throws Exception {
+        return bsnsreqstinqireDao.getBizApplicantViewSub(appSeq);
+    }
+    /**
+     * <pre>
+     * 개요 : 사업신청자 상세-마케팅 이력 조회 리스트
+     * </pre>
+     * @Method Name : getBizAppMarketingList
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public List<EgovMap> getBizAppMarketingList(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        return bsnsreqstinqireDao.getBizAppMarketingList(bsnsreqstinqireDetailVO);
+    }
+    /**
+     * <pre>
+     * 개요 : 사업신청자 상세-기본형 수정 
+     * </pre>
+     * @Method Name : updateBizApplication2
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public int updateBizApplication2(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        
+        int rVal = 0;
+        
+        SimpleDateFormat simpleFormat=new SimpleDateFormat("yyyyMMddHHmmsss");
+        Calendar todayMicCal = Calendar.getInstance();
+        
+        String memberId = bsnsreqstinqireDetailVO.getUserId();
+        String downloadDir = bsnsreqstinqireDetailVO.getDownloadDir();
+        String attachFileName1 = bsnsreqstinqireDetailVO.getAttachFileName1();
+        String attachFileName2 = bsnsreqstinqireDetailVO.getAttachFileName2();
+        String attachFileName3 = bsnsreqstinqireDetailVO.getAttachFileName3();
+        String attachFileName4 = bsnsreqstinqireDetailVO.getAttachFileName4();
+        String attachFileName5 = bsnsreqstinqireDetailVO.getAttachFileName5();
+        String attachFileName6 = bsnsreqstinqireDetailVO.getAttachFileName6();
+        String attachFileName7 = bsnsreqstinqireDetailVO.getAttachFileName7();
+
+        String tempFileName = simpleFormat.format(todayMicCal.getTime());
+        String tempFileName1 = "";
+        String tempFileName2 = "";
+        String tempFileName3 = "";
+        String tempFileName4 = "";
+        String tempFileName5 = "";
+        String tempFileName6 = "";
+        String tempFileName7 = "";
+        
+        if(attachFileName1!=null) tempFileName1 = ("".equals(attachFileName1)) ? "":tempFileName+"1"+attachFileName1.substring(attachFileName1.indexOf("."));
+        if(attachFileName2!=null) tempFileName2 = ("".equals(attachFileName2)) ? "":tempFileName+"2"+attachFileName2.substring(attachFileName2.indexOf("."));
+        if(attachFileName3!=null) tempFileName3 = ("".equals(attachFileName3)) ? "":tempFileName+"3"+attachFileName3.substring(attachFileName3.indexOf("."));
+        if(attachFileName4!=null) tempFileName4 = ("".equals(attachFileName4)) ? "":tempFileName+"4"+attachFileName4.substring(attachFileName4.indexOf("."));
+        if(attachFileName5!=null) tempFileName5 = ("".equals(attachFileName5)) ? "":tempFileName+"5"+attachFileName5.substring(attachFileName5.indexOf("."));
+        if(attachFileName6!=null) tempFileName6 = ("".equals(attachFileName6)) ? "":tempFileName+"6"+attachFileName6.substring(attachFileName6.indexOf("."));
+        if(attachFileName7!=null) tempFileName7 = ("".equals(attachFileName7)) ? "":tempFileName+"7"+attachFileName7.substring(attachFileName7.indexOf("."));
+        
+        try {
+            
+            int newCorpSeq = 0;
+            //int newPersonSeq = 0;
+            
+            if (!"".equals(bsnsreqstinqireDetailVO.getCompNo())) {
+                FromDualVO fromDualVO = new FromDualVO();
+                if(bsnsreqstinqireDetailVO.getCompNo() != null)
+                    fromDualVO.setCompNo(bsnsreqstinqireDetailVO.getCompNo().replaceAll("-", ""));
+                fromDualVO.setUserId("");
+                fromDualVO.setMainTelNo("");
+                fromDualVO.setCorpKorNm(bsnsreqstinqireDetailVO.getCorpKorNm());
+                fromDualVO.setCeoNm(bsnsreqstinqireDetailVO.getCeoNm());
+                int corpSeq = pblancmntrngDao.getDuplCorp(fromDualVO);
+                CorporateMstVO corporateMstVO = new CorporateMstVO();
+                if(corpSeq==0) {
+                    newCorpSeq = pblancmntrngDao.getPersonCorpSeq();
+                    bsnsreqstinqireDetailVO.setCorpSeq(String.valueOf(newCorpSeq));
+                    BeanUtils.copyProperties(corporateMstVO, bsnsreqstinqireDetailVO);
+                    corporateMstVO.setCorpSeq(String.valueOf(newCorpSeq));
+                    bsnsreqstinqireDetailVO.setCorpSeq(String.valueOf(newCorpSeq));
+                    
+                    corporateMstVO.setUserId(bsnsreqstinqireDetailVO.getUserId());
+                    if(bsnsreqstinqireDetailVO.getCompNo() != null)
+                        corporateMstVO.setCompNo(bsnsreqstinqireDetailVO.getCompNo().replaceAll("-", ""));
+                    String corpTel = bsnsreqstinqireDetailVO.getCorpTel();
+                    if(corpTel == null)
+                        bsnsreqstinqireDetailVO.setCorpTelErms("");
+                    else
+                        bsnsreqstinqireDetailVO.setCorpTelErms(corpTel.replaceAll("-", ""));
+                    corporateMstVO.setIndustryCd(bsnsreqstinqireDetailVO.getUpjong());
+                    corporateMstVO.setJongmokCd(bsnsreqstinqireDetailVO.getJongmokValue());
+                    if(!"".equals(bsnsreqstinqireDetailVO.getItemKorNm1()) && bsnsreqstinqireDetailVO.getItemKorNm1() !=null)
+                        corporateMstVO.setItemKorNm(bsnsreqstinqireDetailVO.getItemKorNm1());//수출입 희망품목
+                    if(!"".equals(bsnsreqstinqireDetailVO.getItemKorNm2()) && bsnsreqstinqireDetailVO.getItemKorNm2() !=null)
+                        corporateMstVO.setItemKorNm(corporateMstVO.getItemKorNm()+"/"+bsnsreqstinqireDetailVO.getItemKorNm2());//수출입 희망품목
+                    if(!"".equals(bsnsreqstinqireDetailVO.getItemKorNm3()) && bsnsreqstinqireDetailVO.getItemKorNm3() !=null)
+                        corporateMstVO.setItemKorNm(corporateMstVO.getItemKorNm()+"/"+bsnsreqstinqireDetailVO.getItemKorNm3());//수출입 희망품목
+                    corporateMstVO.setMainTelNo(bsnsreqstinqireDetailVO.getCorpTel());
+                    corporateMstVO.setMainTelNoErms(bsnsreqstinqireDetailVO.getCorpTelErms());
+                    corporateMstVO.setbTelNoErms(bsnsreqstinqireDetailVO.getCorpTelErms());
+                    corporateMstVO.setMainFaxNo(bsnsreqstinqireDetailVO.getFax());
+                    corporateMstVO.setCeoKorNm(bsnsreqstinqireDetailVO.getCeoNm());
+                    if(bsnsreqstinqireDetailVO.getFax() != null)
+                        corporateMstVO.setMainFaxNoErms(bsnsreqstinqireDetailVO.getFax().replaceAll("-", ""));
+                    corporateMstVO.setHomepage(bsnsreqstinqireDetailVO.getHomepage());
+                    corporateMstVO.setFoundYyyymmdd(bsnsreqstinqireDetailVO.getFoundYyyymmdd());
+                    corporateMstVO.setEmpCnt(bsnsreqstinqireDetailVO.getEmpCnt());
+                    corporateMstVO.setSales(bsnsreqstinqireDetailVO.getSales());
+                    corporateMstVO.setExportSales(bsnsreqstinqireDetailVO.getExportSales());
+                    corporateMstVO.setImportSales(bsnsreqstinqireDetailVO.getImportSales());
+                    corporateMstVO.setCompanyDesc(bsnsreqstinqireDetailVO.getCompanyDesc());
+                    
+                    pblancmntrngDao.insertCorpCustomer(corporateMstVO);
+                    
+                    /*biz.insertCorpCustomer(dbManager,datasetvalue
+                            , datasetvalue.getString("COMP_NO"), datasetvalue.getString("CORP_KOR_NM")
+                            , datasetvalue.getString("CEO_NM"), datasetvalue.getString("corpSeq"),"");  */
+                } else {
+                    bsnsreqstinqireDetailVO.setCorpSeq(String.valueOf(corpSeq));
+                    BeanUtils.copyProperties(corporateMstVO, bsnsreqstinqireDetailVO);
+                    corporateMstVO.setCorpSeq(String.valueOf(corpSeq));
+                    bsnsreqstinqireDetailVO.setCorpSeq(String.valueOf(corpSeq));
+                    corporateMstVO.setUserId(bsnsreqstinqireDetailVO.getUserId());
+                    if(bsnsreqstinqireDetailVO.getCompNo() != null)
+                        corporateMstVO.setCompNo(bsnsreqstinqireDetailVO.getCompNo().replaceAll("-", ""));
+                    
+                    corporateMstVO.setIndustryCd(bsnsreqstinqireDetailVO.getUpjong());
+                    corporateMstVO.setJongmokCd(bsnsreqstinqireDetailVO.getJongmokValue());
+                    if(!"".equals(bsnsreqstinqireDetailVO.getItemKorNm1()) && bsnsreqstinqireDetailVO.getItemKorNm1() !=null)
+                        corporateMstVO.setItemKorNm(bsnsreqstinqireDetailVO.getItemKorNm1());//수출입 희망품목
+                    if(!"".equals(bsnsreqstinqireDetailVO.getItemKorNm2()) && bsnsreqstinqireDetailVO.getItemKorNm2() !=null)
+                        corporateMstVO.setItemKorNm(corporateMstVO.getItemKorNm()+"/"+bsnsreqstinqireDetailVO.getItemKorNm2());//수출입 희망품목
+                    if(!"".equals(bsnsreqstinqireDetailVO.getItemKorNm3()) && bsnsreqstinqireDetailVO.getItemKorNm3() !=null)
+                        corporateMstVO.setItemKorNm(corporateMstVO.getItemKorNm()+"/"+bsnsreqstinqireDetailVO.getItemKorNm3());//수출입 희망품목
+                    corporateMstVO.setMainTelNo(bsnsreqstinqireDetailVO.getCorpTel());
+                    corporateMstVO.setMainTelNoErms(bsnsreqstinqireDetailVO.getCorpTel());
+                    corporateMstVO.setbTelNoErms(bsnsreqstinqireDetailVO.getCorpTel());
+                    corporateMstVO.setCeoKorNm(bsnsreqstinqireDetailVO.getCeoNm());
+                    corporateMstVO.setHomepage(bsnsreqstinqireDetailVO.getHomepage());
+                    corporateMstVO.setFoundYyyymmdd(bsnsreqstinqireDetailVO.getFoundYyyymmdd());
+                    corporateMstVO.setEmpCnt(bsnsreqstinqireDetailVO.getEmpCnt());
+                    corporateMstVO.setSales(bsnsreqstinqireDetailVO.getSales());
+                    corporateMstVO.setExportSales(bsnsreqstinqireDetailVO.getExportSales());
+                    corporateMstVO.setImportSales(bsnsreqstinqireDetailVO.getImportSales());
+                    corporateMstVO.setCompanyDesc(bsnsreqstinqireDetailVO.getCompanyDesc());
+                    
+                    pblancmntrngDao.updateCorpCustomer(corporateMstVO);
+                    
+                    /*bsnsreqstinqireDao.updateCorpCustomer(dbManager,datasetvalue
+                                , datasetvalue.getString("COMP_NO"), datasetvalue.getString("CORP_KOR_NM")
+                                , datasetvalue.getString("CEO_NM"), datasetvalue.getString("corpSeq"),"");*/
+                }
+            }
+                        
+            
+            File tgetDir = new File(downloadDir+memberId+"/");
+            if(!tgetDir.exists()){
+                if(!tgetDir.mkdirs())
+                    tgetDir.mkdirs();
+            }
+            // 1번째 첨부파일 저장
+            if (!"".equals(attachFileName1)){
+                copyFile(downloadDir+attachFileName1, downloadDir+tempFileName1);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName1, tempFileName1);
+            }
+            // 2번째 첨부파일 저장
+            if (!"".equals(attachFileName2)){
+                copyFile(downloadDir+attachFileName2, downloadDir+tempFileName2);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName2, tempFileName2);
+            }
+            // 3번째 첨부파일 저장
+            if (!"".equals(attachFileName3)){
+                copyFile(downloadDir+attachFileName3, downloadDir+tempFileName3);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName3, tempFileName3);
+            }
+            // 4번째 첨부파일 저장
+            if (!"".equals(attachFileName4)){
+                copyFile(downloadDir+attachFileName4, downloadDir+tempFileName4);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName4, tempFileName4);
+            }
+            // 5번째 첨부파일 저장
+            if (!"".equals(attachFileName5)){
+                copyFile(downloadDir+attachFileName5, downloadDir+tempFileName5);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName5, tempFileName5);
+            }
+            // 6번째 첨부파일 저장
+            if (!"".equals(attachFileName6)){
+                copyFile(downloadDir+attachFileName6, downloadDir+tempFileName6);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName4, tempFileName4);
+            }
+            // 7번째 첨부파일 저장
+            if (!"".equals(attachFileName7)){
+                copyFile(downloadDir+attachFileName7, downloadDir+tempFileName7);
+//              DRM.Extract(downloadDir, downloadDir, attachFileName5, tempFileName5);
+            }
+            bsnsreqstinqireDetailVO.setTempFileName1(tempFileName1);
+            bsnsreqstinqireDetailVO.setTempFileName2(tempFileName2);
+            bsnsreqstinqireDetailVO.setTempFileName3(tempFileName3);
+            bsnsreqstinqireDetailVO.setTempFileName4(tempFileName4);
+            bsnsreqstinqireDetailVO.setTempFileName5(tempFileName5);
+            bsnsreqstinqireDetailVO.setTempFileName6(tempFileName6);
+            bsnsreqstinqireDetailVO.setTempFileName7(tempFileName7);
+/*
+            rVal=bsnsreqstinqireDao.updateBizApplication2(bsnsreqstinqireDetailVO);
+            datasetvalue.put("PERSON_SEQ", datasetvalue.getString("personSeq"));
+            bsnsreqstinqireDao.insertPersonContact(dbManager, datasetvalue);
+            
+            if(!"Y".equals(bsnsreqstinqireDetailVO.gettYn())) {
+                if( memberId != null &&   !"".equals(memberId) ) {
+                    rVal=bsnsreqstinqireDao.updateKitaInfo(dbManager, datasetvalue);
+                }
+            }
+            
+            bsnsreqstinqireDao.updatePersonCustomer(dbManager,datasetvalue
+                    , datasetvalue.getString("APP_NM"), datasetvalue.getString("CELL_NO")
+                    , datasetvalue.getString("EMAIL"), datasetvalue.getString("PERSON_SEQ")
+                    , datasetvalue.getString("corpSeq"),"");
+            
+            */
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+        return rVal;
+    }
+    /**
+     * <pre>
+     * 개요 : 사업신청자 상세-사업신청자목록-Excel 상세(상담회,사절단)
+     * </pre>
+     * @Method Name : getBizAppMarketingList
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public List<EgovMap> getBizApplicantExcelDetList(String bizSeq) throws Exception {
+        return bsnsreqstinqireDao.getBizApplicantExcelDetList(bizSeq);
+    }
+    public List<EgovMap> getBizApplicantExcelList(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        return bsnsreqstinqireDao.getBizApplicantExcelList(bsnsreqstinqireDetailVO);
+    }
+    public List<EgovMap> getBizApplicantItemName(String bizSeq) throws Exception {
+        return bsnsreqstinqireDao.getBizApplicantItemName(bizSeq);
+    }
+    /**
+     * <pre>
+     * 개요 : 사업신청자 상세-사업신청자목록-Excel 등록
+     * </pre>
+     * @Method Name : getBizAppMarketingList
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public int insertBizAppCompleteForExcel(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        int ret = -1;
+        
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);    
+
+        TransactionStatus status = txManager.getTransaction(def);
+        try{
+            final int tREAD_FIRST_COL = 0;
+            final int tREAD_FIRST_ROW = 6;      
+            int rVal = 0;
+            Workbook workbook = null;
+            Sheet sheet = null;
+
+            File srcFile = new File(bsnsreqstinqireDetailVO.getUploadDir() + bsnsreqstinqireDetailVO.getFileName());
+            if(srcFile.exists()) {
+                EgovMap resultSetValue = bsnsreqstinqireDao.getBizAppView(bsnsreqstinqireDetailVO.getBizSeq());
+                String gubun = "";
+                String editTypeYn = "";
+                if(resultSetValue != null) {
+                    if(resultSetValue.get("gubun")!=null) gubun = resultSetValue.get("gubun").toString();
+                    if(resultSetValue.get("editTypeYn")!=null) editTypeYn = resultSetValue.get("editTypeYn").toString();
+                }
+                else {
+                    return rVal;
+                }
+                
+                workbook = Workbook.getWorkbook(srcFile);                   //존재하는 엑셀파일 경로를 지정
+                workbook.getSheets();
+    
+                sheet = workbook.getSheet(0);                               //첫번째 시트를 지정합니다.
+                int rowCount = sheet.getRows();                             //총 로우수를 가져옵니다.
+                int file_row_id = 1;
+                for(int i = tREAD_FIRST_ROW ; i < rowCount && i < (tREAD_FIRST_ROW+10000) ; i++) {
+                    
+                    bsnsreqstinqireDetailVO.setSource("F");
+                    bsnsreqstinqireDetailVO.setFileRowId(String.valueOf(file_row_id));
+                    bsnsreqstinqireDetailVO.setGubun(gubun);
+                    bsnsreqstinqireDetailVO.setEditTypeYn(editTypeYn);
+                    
+                    file_row_id += 2;
+                    
+                    int k = tREAD_FIRST_COL;
+                    String tStrValue = getCell(sheet, k, i);
+                    
+                    if(tStrValue.trim().length() == 0) break;               //첫번째 열이 비어 있으면 종료 된 것으로 간주한다.
+    
+                    k++;
+                    bsnsreqstinqireDetailVO.setCompNo(getCell(sheet, k, i).replaceAll(" ",""));     
+                    k++;
+                    bsnsreqstinqireDetailVO.setCorpKorNm(getCell(sheet, k, i).replaceAll(" ",""));
+                    k++;
+                    bsnsreqstinqireDetailVO.setCeoNm(getCell(sheet, k, i).replaceAll("'",""));
+                    k++;
+                    bsnsreqstinqireDetailVO.setAppNm(getCell(sheet, k, i).replaceAll("'",""));
+                    k++;
+                    bsnsreqstinqireDetailVO.setCellNo(getCell(sheet, k, i).replaceAll("'",""));
+                    k++;
+                    bsnsreqstinqireDetailVO.setEmail(getCell(sheet, k, i));
+                    k++;
+                    bsnsreqstinqireDetailVO.setProdNm(getCell(sheet, k, i));
+                    k++;
+                    bsnsreqstinqireDetailVO.setCorpTel(getCell(sheet, k, i));
+                    k++;
+                    bsnsreqstinqireDetailVO.setDept(getCell(sheet, k, i));
+                    k++;
+                    bsnsreqstinqireDetailVO.setPozNm(getCell(sheet, k, i));
+                    k++;
+                    bsnsreqstinqireDetailVO.setPersonResiNo(getCell(sheet, k, i));
+                    
+                    BsnsBasicInfoVO bsnsBasicInfoVO = new BsnsBasicInfoVO();
+                    BeanUtils.copyProperties(bsnsBasicInfoVO, bsnsreqstinqireDetailVO);
+                    bsnsBasicInfoVO.setFileName1("");
+                    bsnsBasicInfoVO.setFileName2("");
+                    bsnsBasicInfoVO.setFileName3("");
+                    bsnsBasicInfoVO.setFileName4("");
+                    bsnsBasicInfoVO.setFileName5("");
+                    
+                    rVal = getBizAttendanceComplete(bsnsreqstinqireDetailVO); 
+                    rVal = basicAppProcess(bsnsBasicInfoVO);
+                    
+                } // end for
+                
+                /*
+                 * 엑셀 파일 내 참석자 모두 저장 후 사업완료로 표시
+                 */
+                bsnsreqstinqireDao.updateBizCompleteYn(bsnsreqstinqireDetailVO.getBizSeq());
+            }
+            txManager.commit(status);
+            ret = 1;
+         } catch(TransactionException e){
+             txManager.rollback(status);
+             e.printStackTrace();
+         } catch(Exception e){
+             txManager.rollback(status);
+             e.printStackTrace();
+         } finally {
+             if (!status.isCompleted()) {
+                 txManager.rollback(status);
+             }
+         }        
+     return ret;
+    }
+    public int getBizAttendanceComplete(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+
+        int rVal = 0;
+        final int SEARCH_TYPE_CNT = 2;
+        if(!"".equals(bsnsreqstinqireDetailVO.getBizSeq()) /* && !appNm.equals("") */ ) {
+            for(int i = 0 ; i < SEARCH_TYPE_CNT ; i++) {
+                List<EgovMap> resultSetValue = bsnsreqstinqireDao.getBizAttendanceComplete(bsnsreqstinqireDetailVO);
+                if(resultSetValue.size() > 0){
+
+                    String appNm1 = "";
+                    if(resultSetValue.get(0).get("appNm1")!=null) appNm1 = resultSetValue.get(0).get("appNm1").toString();
+                    String useBizSeq = "";
+                    String useAppSeq = "";
+                    String usePersonSeq = "";
+                    if(appNm1.equals("")) {
+                        if(resultSetValue.get(0).get("bizSeq")!=null) useBizSeq = resultSetValue.get(0).get("bizSeq").toString();
+                        if(resultSetValue.get(0).get("appSeq")!=null) useAppSeq = resultSetValue.get(0).get("appSeq").toString();
+                        if(resultSetValue.get(0).get("personSeq")!=null) usePersonSeq = resultSetValue.get(0).get("personSeq").toString();
+                    }
+                    else {
+                        if(resultSetValue.get(0).get("bizSeq")!=null) useBizSeq = resultSetValue.get(0).get("bizSeq").toString();
+                        if(resultSetValue.get(0).get("appSeq1")!=null) useAppSeq = resultSetValue.get(0).get("appSeq1").toString();
+                        if(resultSetValue.get(0).get("personSeq1")!=null) usePersonSeq = resultSetValue.get(0).get("personSeq1").toString();
+                    }
+                    String existAttendanceOrderNum = "";
+                    if(resultSetValue.get(0).get("attendanceOrderNum")!=null) existAttendanceOrderNum = resultSetValue.get(0).get("attendanceOrderNum").toString();
+                    if(!existAttendanceOrderNum.equals("")) {
+                        // 이미 참가자로 처리된 사람
+                        return 1;
+                    }
+                    else {
+                        // 참가로 처리되어 있지 않은 사람
+                        bsnsreqstinqireDetailVO.setBizSeq(useBizSeq);
+                        if("1".equals(bsnsreqstinqireDetailVO.getGubun()))
+                            bsnsreqstinqireDetailVO.setAttendancePersonSeq(usePersonSeq);
+                        else
+                            bsnsreqstinqireDetailVO.setAttendancePersonSeq(useAppSeq);
+                        return updateAttendanceYn(bsnsreqstinqireDetailVO);
+                    }
+                }
+                if(resultSetValue.size() > 0)
+                    break;
+            }
+        }
+        return rVal;
+    }
+    public int insertBasicAppForExcel(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        BsnsBasicInfoVO bsnsBasicInfoVO = new BsnsBasicInfoVO();
+        BeanUtils.copyProperties(bsnsBasicInfoVO, bsnsreqstinqireDetailVO);
+        bsnsBasicInfoVO.setFileName1("");
+        bsnsBasicInfoVO.setFileName2("");
+        bsnsBasicInfoVO.setFileName3("");
+        bsnsBasicInfoVO.setFileName4("");
+        bsnsBasicInfoVO.setFileName5("");
+        
+        final int tREAD_FIRST_COL = 0;
+        final int tREAD_FIRST_ROW = 6;
+        
+        int result = 0;
+        String bizSeq = bsnsBasicInfoVO.getBizSeq();
+        
+        Workbook workbook = null;
+        Sheet sheet = null;
+
+        String excelDownloadDir = propertiesService.getString("kita.crm.serviceFile.path");
+        String excelFileName = bsnsBasicInfoVO.getFileName();
+        
+        File srcFile = new File(excelDownloadDir + excelFileName);
+        
+        if(srcFile.exists()){
+            try{
+                workbook = Workbook.getWorkbook(srcFile);                   //존재하는 엑셀파일 경로를 지정
+                workbook.getSheets();
+
+                sheet = workbook.getSheet(0);                               //첫번째 시트를 지정합니다.
+
+                int rowCount = sheet.getRows();                             //총 row수를 가져옵니다.
+                
+                int fileRowId = 1;
+                
+                for (int i = tREAD_FIRST_ROW; i < rowCount && i < (tREAD_FIRST_ROW+1000); i++) {
+                    
+                    bsnsBasicInfoVO.setSource("F");
+                    bsnsBasicInfoVO.setFileRowId(Integer.toString(fileRowId));
+                    
+                    fileRowId += 2;
+                    
+                    int k = tREAD_FIRST_COL;
+                    String tStrValue = getCell(sheet, k, i);
+                    
+                    if(tStrValue.trim().length() == 0) break;               //첫번째 열이 비어 있으면 종료 된 것으로 간주한다.
+                    
+                    k++;
+                    bsnsBasicInfoVO.setCompNo(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCorpKorNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCeoNm(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setAppNm(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCellNo(getCell(sheet, k, i).replace("'", ""));
+                    k++;
+                    bsnsBasicInfoVO.setEmail(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setProdNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setCorpTel(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setDept(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setPozNm(getCell(sheet, k, i).replace(" ", ""));
+                    k++;
+                    bsnsBasicInfoVO.setPersonResiNo(getCell(sheet, k, i).replace(" ", ""));
+                    
+                    result = basicAppProcess(bsnsBasicInfoVO);
+                }
+                
+            } catch (Exception e){
+                throw e;
+            }finally {
+                try {
+                    if(workbook != null){
+                        workbook.close();
+                    }
+                }catch (Exception ew){
+                    
+                }
+            }
+            
+        }
+        return result;
+    }
+    /**
+     * <pre>
+     * 개요 : 신청자목록 참가자 제외 업데이트
+     * </pre>
+     * @Method Name : updateBizApplication
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public int updateBizApplication(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        return bsnsreqstinqireDao.updateBizApplication(bsnsreqstinqireDetailVO);
+    }
+    /**
+     * <pre>
+     * 개요 : 제외 참가자 삭제
+     * </pre>
+     * @Method Name : deleteBizApplication
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public int deleteBizApplication(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        return bsnsreqstinqireDao.deleteBizApplication(bsnsreqstinqireDetailVO);
+    }
+    /**
+     * <pre>
+     * 개요 : 참석여부 확인 업데이트
+     * </pre>
+     * @Method Name : updateAttendanceYn
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public int updateAttendanceYn(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        // hjh, 참가자 선별 시 체크박스로 다중으로 선택/선별할 수 있도록 기능 추가
+        String chkAttendanceYn = bsnsreqstinqireDetailVO.getCheckedAttendanceYn();
+        String chkAttendanceSeqList = bsnsreqstinqireDetailVO.getCheckedAttendanceSeqList();
+        int result = 0;
+        BsnsBasicInfoVO completeVO = new BsnsBasicInfoVO();
+        completeVO.setBizSeq(bsnsreqstinqireDetailVO.getBizSeq());
+        BsnsBasicInfoVO attendVO;
+        if(!chkAttendanceYn.equals("") && chkAttendanceYn.equals("Y") 
+                && !chkAttendanceSeqList.equals("")) {
+
+            String [] seqList = chkAttendanceSeqList.split(",");
+            LOGGER.debug("chkAttendanceSeqList:"+chkAttendanceSeqList);
+            LOGGER.debug("seqList:"+Arrays.toString(seqList));
+            for(int i = 0 ; i < seqList.length ; i++) {
+                //참석 여부 조회 객체 초기화
+                attendVO = new BsnsBasicInfoVO();
+                
+                if(!seqList[i].equals("")) {
+                    completeVO.setAttendancePersonSeq(seqList[i]);
+                    //기본형일 경우
+                    //if("1".equals(gubun)){
+                        attendVO = bsnsreqstinqireDao.selectAttendanceYn(completeVO);
+                        if(StringUtils.isEmpty(attendVO)){
+                            result = bsnsreqstinqireDao.updateAttendanceYn(completeVO);
+                        }
+/*                                    } else{ //맞춤형일경우
+                        attendVO = bsnsreqstinqireDao.selectAttendanceYn2(completeVO);
+                        if(StringUtils.isEmpty(attendVO)){
+                            result = bsnsreqstinqireDao.updateAttendanceYn2(completeVO);
+                        }
+                    }*/
+                }
+            }
+        } else {
+            completeVO.setAttendancePersonSeq(bsnsreqstinqireDetailVO.getAttendancePersonSeq());
+          //기본형일 경우
+            //if("1".equals(gubun)){ 
+                attendVO = bsnsreqstinqireDao.selectAttendanceYn(completeVO);
+                if(StringUtils.isEmpty(attendVO)){
+                    result = bsnsreqstinqireDao.updateAttendanceYn(completeVO);
+                }
+/*                            } else{ //맞춤형일경우
+                attendVO = bsnsreqstinqireDao.selectAttendanceYn2(completeVO);
+                if(StringUtils.isEmpty(attendVO)){
+                    result = bsnsreqstinqireDao.updateAttendanceYn2(completeVO);
+                }
+            }*/                        
+        }
+        return result;
+    }
+    /**
+     * <pre>
+     * 개요 : 사업완료 업데이트
+     * </pre>
+     * @Method Name : updateBizCompleteYn
+     * @author : dkcns
+     * @date : 2017. 8. 18.
+     * @param bsnsreqstinqireDetailVO
+     * @return
+     * @throws Exception
+     */
+    public int updateBizCompleteYn(BsnsreqstinqireDetailVO bsnsreqstinqireDetailVO) throws Exception {
+        int rtn = 0;
+        if("Y".equals(bsnsreqstinqireDetailVO.getpMode()))
+            rtn = bsnsreqstinqireDao.updateBizCompleteYn(bsnsreqstinqireDetailVO.getBizSeq());
+        else if("N".equals(bsnsreqstinqireDetailVO.getpMode()))
+            rtn = bsnsreqstinqireDao.updateBizCompleteYnCancel(bsnsreqstinqireDetailVO.getBizSeq());
+        
+        return rtn;
+    }
+    
+    
+    
+}

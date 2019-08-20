@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+* 파일명  : LoginInfo_SQL.xml
+* 설   명  : 로그인 정보 SQLMAP
+* 시스템  : 동국대학교 icip
+* since 2019. 3. 7.
+* version 1.0
+*
+* Copyright ⓒ 2019 Dongguk Univ., All Rights Reserved.
+* =========================================
+* Modification Information
+* =========================================
+*   수정일		 		수정자			수정내용
+* =========================================
+*  2019. 3.  7.		DGU			신규생성
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.ac.dgu.icip.login.dao.LoginInfoDAO">
+	<!-- 코드마스터 검색(PK) -->
+	<select id="selectLoginInfo"  parameterType="loginInfoVO" resultType="loginInfoVO">
+		<![CDATA[
+		SELECT /**사용자 정보 **/
+		        '' ID
+		       ,'' PW
+		       ,'' NAME
+		   FROM USERS
+		  WHERE ID = #{id}
+			]]>
+	</select>
+	<!-- 권한 정보 검색 -->
+	<select id="selectLoginAuth"  parameterType="loginInfoVO" resultType="authInfoVO">
+		<![CDATA[
+			SELECT '' READ_AUTH ,
+			       '' WRT_AUTH ,
+			       '' ADM_AUTH ,
+			       '' AUTH_GCODE ,
+			       '' MENU_CODE ,
+			       '' S_MENU_CODE ,
+			       '' MENU_NAME ,
+			       '' MENU_IMAGE ,
+			       '' MENU_OUT_IMAGE ,
+			       '' MENU_URL
+			  FROM TABLE
+			  WHERE SNO = 1
+			]]>
+	</select>
+
+	<select id="selectNetId"  parameterType="java.util.Map" resultType="java.util.HashMap">
+	    <![CDATA[
+		SELECT '' SNO
+		     , '' KNAME
+		     , '' GW_ID
+		FROM TABLE
+		WHERE SNO = 1
+		]]>
+	</select>
+
+</mapper>

@@ -1,0 +1,92 @@
+<%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style type = "css">
+  @import url("css/notice.css")
+
+  </style>
+  <style>
+  div.boardOption > ul select {
+    width: auto;
+    max-width: 200px;
+}
+  input {
+    height: inherit;
+    font-size: 13px;
+    color: #666;
+    box-sizing: border-box;
+    /* -webkit-box-sizing: border-box; */
+    -moz-box-sizing: border-box;
+    /* vertical-align: middle; */
+}
+
+#searchbox {
+    *width: 120px;
+    border: 1px solid #afafaf;
+    padding: 0;
+    text-align: center;
+    color: #e1e1e1;
+    vertical-align: middle;
+}
+#searchbox #search {
+    float: left;
+    width: 110px;
+    border: 0;
+    padding: 0 3px;
+}
+  </style>
+</head>
+<body>
+<div style = "padding-top: 10px; font-size:30px; padding-bottom:10px; color : #fde585; font-weight:bold " >
+공지사항
+</div>
+<div id = "noticeBoard">
+   <div class="boardOption">
+					<ul style = "float: left; padding-bottom: 10px;">
+						<li style = "float: left; padding-bottom: 10px; padding-right : 10px; display: inline;">
+						 	<select name="searchKey" class="default" title="선택해주세요" >
+								<option value="TITLE" selected="">제목</option>
+								<option value="BOARD_CONTENTS">내용</option>
+								<option value="REG_NAME">작성자 명</option>
+							</select>
+							
+
+						</li>
+							<li id="searchbox" class="mr0" style = "float: left; padding-left : 20px; display: inline; ">
+								<input type="text" name="searchTxt" maxlength="100" value="" onkeyup="inputCheckSpecial(this)" id="search" title="검색">
+								<input type="image" name="" src="/images/search_btn.png" onclick="javascript:searchSubmit();" alt="search">
+							</li>
+					</ul>
+				</div>
+<script>
+//글쓰기
+function fn_write(){
+    
+    var form = document.getElementById("boardForm");
+    
+    form.action = "<c:url value='noticeWrite.do'/>";
+    form.submit();
+    
+}
+ 
+//글조회
+function fn_view(code){
+    
+    var form = document.getElementById("boardForm");
+    var url = "<c:url value='noticeView.do'/>";
+   // url = url + "?code=" + code;
+    
+    form.action = url;    
+    form.submit(); 
+}
+</script>
+</div>
+</body>
+</html>

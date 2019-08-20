@@ -1,0 +1,19 @@
+@CHARSET "UTF-8";
+#mainbox {
+	display : block;
+	position: relative;
+    width: 1200px;
+    margin: auto 0px;
+    padding: 0px;
+  }
+  
+  #mainbox div.codebox {
+  height : 350px;
+  background : red;
+  
+  }
+   #mainbox div.innerbox div {
+  height : 350px;
+  background : red;
+  
+  }

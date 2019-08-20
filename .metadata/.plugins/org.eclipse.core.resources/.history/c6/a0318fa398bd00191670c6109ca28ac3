@@ -1,0 +1,68 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+response.setHeader("cache-control","no-cache");
+response.setHeader("expires","-1");
+response.setHeader("pragma","no-cache");
+%>
+<%@ page trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
+<link href="<c:out value="${pageContext.request.contextPath}"/>/css/left.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javaScript" language="javascript" defer="defer">
+
+</script>
+<!-- TOP -->
+<html>
+ <head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style type = "css">
+  @import url("css/left.css")
+  hr{display : block}
+ </style>
+ </head> 
+ <body>
+ <ul style = "width: 1300px; margin: 0 auto; text-align: center;">
+ <ul id = "left" style = "display:block">
+		<li class="drop" style="height: 55px;"><a href="#0" class="">내 정보</a> 
+			<ul class="sub_menu" style="padding-top: 55px; top: 0px;"> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_NOTICE&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">공지사항</a></li> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_QNA&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">질의응답</a></li> 
+				<li><a href="/Main.do?cmd=moveMenu&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00215" class="">FAQ</a></li><li><a href="http://8877.dongguk.edu" target="_blank" class="">원격지원</a></li> 
+			</ul> 
+		</li>
+		<li class="drop" style="height: 55px;"><a href="#0" class="">학습 관리</a> 
+			<ul class="sub_menu" style="padding-top: 55px; top: 0px;"> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_NOTICE&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">공지사항</a></li> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_QNA&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">질의응답</a></li> 
+				<li><a href="/Main.do?cmd=moveMenu&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00215" class="">FAQ</a></li><li><a href="http://8877.dongguk.edu" target="_blank" class="">원격지원</a></li> 
+			</ul> 
+		</li>
+		<li class="drop" style="height: 55px;"><a href="#0" class="">평가</a> 
+			<ul class="sub_menu" style="padding-top: 55px; top: 0px;"> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_NOTICE&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">공지사항</a></li> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_QNA&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">질의응답</a></li> 
+				<li><a href="/Main.do?cmd=moveMenu&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00215" class="">FAQ</a></li><li><a href="http://8877.dongguk.edu" target="_blank" class="">원격지원</a></li> 
+			</ul> 
+		</li>
+		<li class="drop" style="height: 55px;"><a href="#0" class="">포트폴리오</a> 
+			<ul class="sub_menu" style="padding-top: 55px; top: 0px;"> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_NOTICE&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">공지사항</a></li> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_QNA&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">질의응답</a></li> 
+				<li><a href="/Main.do?cmd=moveMenu&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00215" class="">FAQ</a></li><li><a href="http://8877.dongguk.edu" target="_blank" class="">원격지원</a></li> 
+			</ul> 
+		</li>
+		<li class="drop" style="height: 55px;"><a href="#0" class="">조회</a> 
+			<ul class="sub_menu" style="padding-top: 55px; top: 0px;"> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_NOTICE&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">공지사항</a></li> 
+				<li><a href="/Board.do?cmd=viewBoardContentsList&amp;boardInfoDTO.boardInfoId=BOAD_SYSTEM_QNA&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00041" class="">질의응답</a></li> 
+				<li><a href="/Main.do?cmd=moveMenu&amp;mainDTO.parentMenuId=menu_00029&amp;mainDTO.menuId=menu_00215" class="">FAQ</a></li><li><a href="http://8877.dongguk.edu" target="_blank" class="">원격지원</a></li> 
+			</ul> 
+		</li>
+	</ul>
+	</ul>
+ </div>
+ </body> 
+ </html>
+<!-- TOP -->

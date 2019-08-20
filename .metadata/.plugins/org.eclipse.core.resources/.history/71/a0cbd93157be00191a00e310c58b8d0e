@@ -1,0 +1,7 @@
+@CHARSET "UTF-8";
+#mainbox {
+	position: relative;
+    width: 1200px;
+    margin: 40px;
+    padding: 20px 0;
+  }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+	<bean name="propertiesService" class="egovframework.rte.fdl.property.impl.EgovPropertyServiceImpl" destroy-method="destroy">
+		<!--한글 처리 관련 프로퍼티 우선순위 상 -->
+		<property name="properties">
+		    <map>    
+<!--                 <entry key="icip.smsvo.senddept" value="${icip.smsvo.senddept}"/> -->
+	        </map>
+		</property>  
+      	<!--프로퍼티 파일 처리 -->
+		<property name="extFileName">
+         <set>
+            <map>
+               <entry key="encoding" value="UTF-8"/>
+               <entry key="filename" value="classpath*:icip/config/icip.properties"/>
+            </map>
+         </set>
+      	</property>			
+	</bean>
+	
+</beans>	

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/jdbc  http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd">
+	
+
+	<alias name="dataSource" alias="egov.dataSource"/>
+
+    <!-- DataSource -->
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="${database.icip.jndiname}" />
+        <property name="jndiTemplate" ref="jndiTemplate" />
+    </bean>
+
+	<bean id="dataSource_log" class="net.sf.log4jdbc.Log4jdbcProxyDataSource"> 
+		<constructor-arg ref="dataSource" />
+		<property name="logFormatter" ref="logCustomFormatter"/>
+	</bean>
+
+
+    <bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
+        <property name="environment">
+            <props>
+            </props>
+        </property>
+    </bean>
+ 
+	<bean id="logCustomFormatter" class="kr.ac.dgu.base.cmm.log.Log4JdbcCustomFormatter">
+		<property name="loggingType" value="MULTI_LINE" />
+		<property name="sqlPrefix" value="SQL::: " />
+	</bean>   
+</beans>

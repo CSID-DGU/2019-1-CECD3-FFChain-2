@@ -1,0 +1,24 @@
+@CHARSET "UTF-8";
+
+.boardOption > ul > li {
+    float: left;
+    margin-right: 6px;
+}
+
+.boardOption > ul {
+    float: left;
+    padding-bottom: 10px;
+}
+
+.chosen-container {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 12px;
+    zoom: 1;
+    *display: inline;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}

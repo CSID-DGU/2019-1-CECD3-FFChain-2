@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+* 파일명  : LoginInfo_SQL.xml
+* 설   명  : 로그인 정보 SQLMAP
+* 시스템  : 동국대학교 icip
+* since 2019. 3. 7.
+* version 1.0
+* 
+* Copyright ⓒ 2019 Dongguk Univ., All Rights Reserved.
+* =========================================
+* Modification Information
+* =========================================
+*   수정일		 		수정자			수정내용
+* =========================================
+*  2019. 3.  7.		DGU			신규생성
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.ac.dgu.icip.notice.dao.NoticeDAO">
+	<!-- 코드마스터 검색(PK) -->
+	<select id="selectNoticeList"  parameterType="noticeVO" resultType="noticeVO">
+		SELECT * FROM NOTICES
+	</select>
+	<select id="selectNotice"  parameterType="noticeVO" resultType="noticeVO">
+		SELECT * FROM NOTICES WHERE CONTENT = #{content}
+	</select>
+	<select id="insertNotice"  parameterType="noticeVO" resultType="noticeVO">
+		<![CDATA[
+		INSERT INTO NOTICES (code,title,content,writer,datetime) VALUES(#{code},#{title},#{content},#{writer},to_char(sysdate, 'yyyy.mm.dd hh24:mi'))
+			]]>
+	</select>
+</mapper>

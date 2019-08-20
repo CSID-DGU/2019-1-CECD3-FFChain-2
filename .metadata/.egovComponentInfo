@@ -1,0 +1,95 @@
+
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cmm	공통
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cop.com	협업공통
+[2017.07.27 16:54:59] Installed component:	egovframework.com.uat.uia	일반로그인
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.drm	부서권한관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.rgm	권한그룹관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.rmt	롤관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.ram	권한관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.gmt	그룹관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.security	보안
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sec.pki	암호화/복호화
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cop.tpl	게시판 템플릿
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cop.bbs	게시판
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cop.stf	만족도조사
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cop.sms	문자메시지서비스
+[2017.07.27 16:54:59] Installed component:	egovframework.com.cop.ems	메일연동 인터페이스
+[2017.07.27 16:54:59] Installed component:	egovframework.com.uss.mpe	마이페이지
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.ccm.cca	공통코드
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.ccm.ccc	공통분류코드
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.ccm.cde	공통상세코드
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.ccm.zip	우편번호 주소찾기
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.log.lgm	로그관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.log.ulg	사용로그관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.log.wlg	웹로그관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.log.clg	접속로그관리
+[2017.07.27 16:54:59] Installed component:	egovframework.com.sym.cal	일반달력
+[2017.07.27 16:54:59] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.07.27 16:54:59] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.07.27 16:54:59] Installed component:	egovframework.com.utl.sim	시스템정보확인
+[2017.07.27 17:08:07] Installed component:	egovframework.com.cmm	공통
+[2017.07.27 17:08:07] Installed component:	egovframework.com.uat.uia	일반로그인
+[2017.07.27 17:08:07] Installed component:	egovframework.com.cop.ems	메일연동 인터페이스
+[2017.07.27 17:08:07] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.07.27 17:08:07] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.07.27 17:08:07] Installed component:	egovframework.com.utl.sim	시스템정보확인
+[2017.07.27 18:01:03] Installed component:	egovframework.com.cmm	공통
+[2017.07.27 18:01:03] Installed component:	egovframework.com.cop.com	협업공통
+[2017.07.27 18:01:03] Installed component:	egovframework.com.uat.uia	일반로그인
+[2017.07.27 18:01:03] Installed component:	egovframework.com.cop.ems	메일연동 인터페이스
+[2017.07.27 18:01:03] Installed component:	egovframework.com.uss.mpe	마이페이지
+[2017.07.27 18:01:03] Installed component:	egovframework.com.utl.fda.ucc	단위계산
+[2017.07.27 18:01:03] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.07.27 18:01:03] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.07.27 18:01:03] Installed component:	egovframework.com.utl.sim	시스템정보확인
+[2017.08.01 09:21:48] Installed component:	egovframework.com.cmm	공통
+[2017.08.01 09:21:48] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.08.01 09:21:48] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cmm	공통
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cop.com	협업공통
+[2017.08.01 20:01:08] Installed component:	egovframework.com.uat.uia	일반로그인
+[2017.08.01 20:01:08] Installed component:	egovframework.com.sec.rnc	실명확인/ 공공i-Pin실명확인
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cop.tpl	게시판 템플릿
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cop.bbs	게시판
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cop.stf	만족도조사
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cop.sms	문자메시지서비스
+[2017.08.01 20:01:08] Installed component:	egovframework.com.cop.ems	메일연동 인터페이스
+[2017.08.01 20:01:08] Installed component:	egovframework.com.uss.umt	기업/사용자/회원관리
+[2017.08.01 20:01:08] Installed component:	egovframework.com.uss.mpe	마이페이지
+[2017.08.01 20:01:08] Installed component:	egovframework.com.uss.ion.lsi	로그인화면이미지관리
+[2017.08.01 20:01:08] Installed component:	egovframework.com.sym.ccm.zip	우편번호 주소찾기
+[2017.08.01 20:01:08] Installed component:	egovframework.com.sym.cal	일반달력
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.cas	경고메시지
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.fda.ucc	단위계산
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sim	시스템정보확인
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.trm	송수신 모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.dbm	DB서비스 모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.htm	HTTP서비스모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.prm	프로세스 모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.nsm	네트워크 서비스 모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.fsm	파일시스템모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.pxy	프록시서비스
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.ssy	파일동기화
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.rsc	로그인세션정보체크
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.srm	서버자원 모니터링
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.sys.wsi	웹표준검사
+[2017.08.01 20:01:08] Installed component:	egovframework.com.utl.slm	중복로그인 방지
+[2017.08.01 20:01:08] Installed component:	egovframework.com.ext.oauth	소셜 인증 기반 로그인 기능
+[2017.08.01 20:05:27] Installed component:	egovframework.com.cmm	공통
+[2017.08.01 20:05:27] Installed component:	egovframework.com.sym.cal	일반달력
+[2017.08.01 20:05:27] Installed component:	egovframework.com.utl.fda.ucc	단위계산
+[2017.08.01 20:05:27] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.08.01 20:05:27] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cmm	공통
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cop.com	협업공통
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cop.tpl	게시판 템플릿
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cop.bbs	게시판
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cop.cmt	댓글관리
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cop.scp	스크랩기능
+[2017.08.04 11:37:31] Installed component:	egovframework.com.cop.stf	만족도조사
+[2017.08.04 11:37:31] Installed component:	egovframework.com.sym.cal	일반달력
+[2017.08.04 11:37:31] Installed component:	egovframework.com.utl.fcc	유틸리티
+[2017.08.04 11:37:31] Installed component:	egovframework.com.utl.wed	웹에디터
+[2017.08.04 11:37:31] Installed component:	egovframework.com.utl.sim	시스템정보확인
