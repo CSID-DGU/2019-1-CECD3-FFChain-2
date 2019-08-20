@@ -1,8 +1,0 @@
-127.0.0.1 - - [24/Jul/2019:09:23:08 +0900] "GET / HTTP/1.1" 200 10
-127.0.0.1 - - [24/Jul/2019:09:23:17 +0900] "GET /icip/main/index.do HTTP/1.1" 200 1456
-127.0.0.1 - - [24/Jul/2019:09:23:19 +0900] "POST /icip/login/loginMain.do;jsessionid=32DE5A18C4C8D4D6F6CA52881F8C22A9 HTTP/1.1" 200 6050
-127.0.0.1 - - [24/Jul/2019:09:23:25 +0900] "POST /icip/login/loginCheck.do HTTP/1.1" 200 6155
-127.0.0.1 - - [24/Jul/2019:09:23:26 +0900] "GET /icip/login/loginMain.do HTTP/1.1" 200 6050
-127.0.0.1 - - [24/Jul/2019:09:23:31 +0900] "POST /icip/login/loginCheck.do HTTP/1.1" 200 6152
-127.0.0.1 - - [24/Jul/2019:09:23:32 +0900] "GET /icip/main/main.do HTTP/1.1" 200 5879
-127.0.0.1 - - [24/Jul/2019:09:23:34 +0900] "POST /icip/main/logout.do HTTP/1.1" 200 -
